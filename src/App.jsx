@@ -1,14 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { mathChapters, englishChapters } from './data/curriculum';
 import { generateExam } from './data/examGenerator';
 import { generateDynamicStation } from './data/stationGenerator';
 import { getRank } from './data/gameEngine';
 import BossFight from './components/BossFight';
 import SurvivalMode from './components/SurvivalMode';
+import GameHub from './components/GameHub';
 import './index.css';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState('boss'); // 'boss' | 'survival' | 'stations' | 'exam' | 'calc' | 'english'
+  const [activeTab, setActiveTab] = useState('arcade'); // 'arcade' | 'boss' | 'stations' | 'exam' | 'calc' | 'english'
   const [selectedStationIndex, setSelectedStationIndex] = useState(0);
 
   // XP und Level-System
@@ -68,7 +69,7 @@ export default function App() {
 
   const handleSelectStationOption = (exId, optIdx) => {
     setStationAnswers(prev => ({ ...prev, [exId]: optIdx }));
-    gainXp(15); // XP für das Lösen einer Stationsaufgabe!
+    gainXp(15);
   };
 
   const calculatePythagoras = () => {
@@ -81,78 +82,48 @@ export default function App() {
       setCalcResult({
         title: 'Gesucht: Hypotenuse c (längste Seite)',
         steps: [
-          `1. Grundformel notieren: a² + b² = c²`,
-          `2. Zahlen einsetzen: ${a}² + ${b}² = c²`,
-          `3. Quadrieren: ${a * a} + ${b * b} = c²  ->  ${a * a + b * b} = c²`,
-          `4. Wurzel ziehen: c = √(${a * a + b * b})`,
-          `Ergebnis: c ≈ ${res.toFixed(2)} cm (exakter Wurzelausdruck: √${a * a + b * b})`
+          `1. Grundformel: a² + b² = c²`,
+          `2. Einsetzen: ${a}² + ${b}² = c²`,
+          `3. Quadrieren: ${a * a} + ${b * b} = ${a * a + b * b}`,
+          `4. Wurzel ziehen: c = √(${a * a + b * b}) ≈ ${res.toFixed(2)} cm`
         ]
       });
     } else if (c && b && !a) {
       if (b >= c) {
-        setCalcResult({
-          title: 'Fehler in den Angaben!',
-          steps: ['Die Hypotenuse c muss IMMER die längste Seite sein! Kathete b darf nicht größer oder gleich c sein.']
-        });
+        setCalcResult({ title: 'Fehler', steps: ['Hypotenuse c muss die längste Seite sein!'] });
         return;
       }
       const res = Math.sqrt(c * c - b * b);
       setCalcResult({
-        title: 'Gesucht: Kathete a (du kennst Hypotenuse c und Kathete b!)',
+        title: 'Gesucht: Kathete a (c und b bekannt)',
         steps: [
-          `1. Grundformel: a² + b² = c²`,
-          `2. Umstellen nach a² (b² mit Minus auf die andere Seite): a² = c² - b²`,
-          `3. Zahlen einsetzen: a² = ${c}² - ${b}²`,
-          `4. Quadrieren: a² = ${c * c} - ${b * b}  ->  a² = ${c * c - b * b}`,
-          `5. Wurzel ziehen: a = √(${c * c - b * b})`,
-          `Ergebnis: a ≈ ${res.toFixed(2)} cm (exakt: √${c * c - b * b})`
+          `1. a² = c² - b²`,
+          `2. a² = ${c}² - ${b}² = ${c * c} - ${b * b} = ${c * c - b * b}`,
+          `3. a = √(${c * c - b * b}) ≈ ${res.toFixed(2)} cm`
         ]
       });
     } else if (c && a && !b) {
       if (a >= c) {
-        setCalcResult({
-          title: 'Fehler in den Angaben!',
-          steps: ['Die Hypotenuse c muss IMMER die längste Seite sein! Kathete a darf nicht größer oder gleich c sein.']
-        });
+        setCalcResult({ title: 'Fehler', steps: ['Hypotenuse c muss die längste Seite sein!'] });
         return;
       }
       const res = Math.sqrt(c * c - a * a);
       setCalcResult({
-        title: 'Gesucht: Kathete b (du kennst Hypotenuse c und Kathete a!)',
+        title: 'Gesucht: Kathete b (c und a bekannt)',
         steps: [
-          `1. Grundformel: a² + b² = c²`,
-          `2. Umstellen nach b² (a² mit Minus auf die andere Seite): b² = c² - a²`,
-          `3. Zahlen einsetzen: b² = ${c}² - ${a}²`,
-          `4. Quadrieren: b² = ${c * c} - ${a * a}  ->  b² = ${c * c - a * a}`,
-          `5. Wurzel ziehen: b = √(${c * c - a * a})`,
-          `Ergebnis: b ≈ ${res.toFixed(2)} cm (exakt: √${c * c - a * a})`
+          `1. b² = c² - a²`,
+          `2. b² = ${c}² - ${a}² = ${c * c} - ${a * a} = ${c * c - a * a}`,
+          `3. b = √(${c * c - a * a}) ≈ ${res.toFixed(2)} cm`
         ]
       });
     } else if (a && b && c) {
       const left = a * a + b * b;
       const right = c * c;
       const diff = Math.abs(left - right);
-      let typ = '';
-      if (diff < 0.001) {
-        typ = 'RECHTWINKLIG (genau 90° Winkel gegenüber Seite c), weil a² + b² = c²';
-      } else if (left > right) {
-        typ = 'SPITZWINKLIG (alle Winkel < 90°), weil a² + b² > c²';
-      } else {
-        typ = 'STUMPFWINKLIG (ein Winkel > 90°), weil a² + b² < c²';
-      }
+      let typ = diff < 0.001 ? 'RECHTWINKLIG' : (left > right ? 'SPITZWINKLIG' : 'STUMPFWINKLIG');
       setCalcResult({
-        title: `Prüfung der Dreiecksart für a = ${a}, b = ${b}, c = ${c}`,
-        steps: [
-          `1. Summe der Kathetenquadrate: ${a}² + ${b}² = ${a * a} + ${b * b} = ${left}`,
-          `2. Quadrat der längsten Seite: ${c}² = ${right}`,
-          `3. Vergleich: ${left} ${diff < 0.001 ? '=' : (left > right ? '>' : '<')} ${right}`,
-          `Ergebnis: Das Dreieck ist ${typ}.`
-        ]
-      });
-    } else {
-      setCalcResult({
-        title: 'Eingabe unvollständig',
-        steps: ['Bitte gib entweder 2 Seiten ein oder alle 3!']
+        title: `Dreiecksart: ${typ}`,
+        steps: [`a² + b² = ${left}`, `c² = ${right}`]
       });
     }
   };
@@ -162,9 +133,7 @@ export default function App() {
 
   let examScore = 0;
   if (examSubmitted) {
-    examQuestions.forEach(q => {
-      if (examAnswers[q.id] === q.correctAnswer) examScore++;
-    });
+    examQuestions.forEach(q => { if (examAnswers[q.id] === q.correctAnswer) examScore++; });
   }
 
   return (
@@ -173,7 +142,7 @@ export default function App() {
       <header className="app-header">
         <div className="header-inner">
           <div>
-            <div className="app-title">Lern-Coach & Spiel (Klasse 9)</div>
+            <div className="app-title">Klassenarbeits-Coach & Spielehalle (9a)</div>
             <div style={{ fontSize: '12px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '8px', marginTop: '2px' }}>
               <span>{userRank.icon} <strong>{userRank.title}</strong></span>
               <span>•</span>
@@ -183,22 +152,22 @@ export default function App() {
 
           <nav className="tab-nav" style={{ flexWrap: 'wrap' }}>
             <button
+              className={`tab-btn ${activeTab === 'arcade' ? 'active' : ''}`}
+              onClick={() => setActiveTab('arcade')}
+            >
+              🎮 4 Minispiele (UNO, Kniffel, Among Us, Bloons)
+            </button>
+            <button
               className={`tab-btn ${activeTab === 'boss' ? 'active' : ''}`}
               onClick={() => setActiveTab('boss')}
             >
               ⚔️ Boss-Fight Arena
             </button>
             <button
-              className={`tab-btn ${activeTab === 'survival' ? 'active' : ''}`}
-              onClick={() => setActiveTab('survival')}
-            >
-              🔥 Streak-Survival
-            </button>
-            <button
               className={`tab-btn ${activeTab === 'stations' ? 'active' : ''}`}
               onClick={() => setActiveTab('stations')}
             >
-              🚩 Lernstationen (1 bis 5)
+              🚩 Grundlernen: Stationen 1-5
             </button>
             <button
               className={`tab-btn ${activeTab === 'exam' ? 'active' : ''}`}
@@ -210,7 +179,7 @@ export default function App() {
               className={`tab-btn ${activeTab === 'calc' ? 'active' : ''}`}
               onClick={() => setActiveTab('calc')}
             >
-              🔢 Pythagoras-Rechner
+              🔢 Rechner
             </button>
             <button
               className={`tab-btn ${activeTab === 'english' ? 'active' : ''}`}
@@ -225,14 +194,14 @@ export default function App() {
       {/* Hauptinhalt */}
       <main className="container">
 
+        {/* ===================== TAB: ARCADE-MINISPIELE ===================== */}
+        {activeTab === 'arcade' && (
+          <GameHub onGainXp={gainXp} />
+        )}
+
         {/* ===================== TAB: BOSS FIGHT ===================== */}
         {activeTab === 'boss' && (
           <BossFight xp={xp} onGainXp={gainXp} />
-        )}
-
-        {/* ===================== TAB: SURVIVAL ===================== */}
-        {activeTab === 'survival' && (
-          <SurvivalMode onGainXp={gainXp} />
         )}
 
         {/* ===================== TAB: LERNSTATIONEN ===================== */}
@@ -264,9 +233,7 @@ export default function App() {
               </div>
               <p className="card-desc">{currentStation.description}</p>
 
-              <div className="theory-box">
-                {currentStation.summary}
-              </div>
+              <div className="theory-box">{currentStation.summary}</div>
 
               <h2 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '12px', marginTop: '24px' }}>
                 Dynamische Aufgaben (Jede richtige Antwort gibt +15 XP!):
@@ -323,7 +290,6 @@ export default function App() {
                 <button className="tab-btn" onClick={() => regenerateStation(selectedStationIndex)}>
                   🔄 Gleiche Station mit neuen Zahlen nochmal
                 </button>
-
                 {selectedStationIndex < mathChapters.length - 1 && (
                   <button className="calc-btn" onClick={() => setSelectedStationIndex(selectedStationIndex + 1)}>
                     Zur nächsten Station weiter ➔
@@ -424,11 +390,7 @@ export default function App() {
                 Klassenarbeit abgeben & Auswertung ansehen
               </button>
             ) : (
-              <button
-                className="calc-btn"
-                onClick={startNewExam}
-                style={{ width: '100%', padding: '14px', fontSize: '16px', marginTop: '12px' }}
-              >
+              <button className="calc-btn" onClick={startNewExam} style={{ width: '100%', padding: '14px', fontSize: '16px', marginTop: '12px' }}>
                 🔄 Neue Klassenarbeit starten
               </button>
             )}
@@ -439,69 +401,28 @@ export default function App() {
         {activeTab === 'calc' && (
           <div className="card">
             <h1 className="card-title">🔢 Pythagoras-Schritt-Rechner (mit c)</h1>
-            <p className="card-desc">
-              Gib genau 2 Seiten ein, die 3. wird mit allen Einzelschritten berechnet.
-            </p>
-
+            <p className="card-desc">Gib genau 2 Seiten ein, die 3. wird mit allen Einzelschritten berechnet.</p>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px', marginTop: '16px' }}>
               <div className="form-group">
                 <label className="form-label">Kathete a:</label>
-                <input
-                  type="number"
-                  step="any"
-                  className="form-input"
-                  value={sideA}
-                  onChange={e => setSideA(e.target.value)}
-                  placeholder="z. B. 6"
-                />
+                <input type="number" step="any" className="form-input" value={sideA} onChange={e => setSideA(e.target.value)} placeholder="z. B. 6" />
               </div>
               <div className="form-group">
                 <label className="form-label">Kathete b:</label>
-                <input
-                  type="number"
-                  step="any"
-                  className="form-input"
-                  value={sideB}
-                  onChange={e => setSideB(e.target.value)}
-                  placeholder="z. B. 8"
-                />
+                <input type="number" step="any" className="form-input" value={sideB} onChange={e => setSideB(e.target.value)} placeholder="z. B. 8" />
               </div>
               <div className="form-group">
-                <label className="form-label">Hypotenuse c (längste Seite):</label>
-                <input
-                  type="number"
-                  step="any"
-                  className="form-input"
-                  value={sideC}
-                  onChange={e => setSideC(e.target.value)}
-                  placeholder="z. B. 10 (oder frei lassen)"
-                />
+                <label className="form-label">Hypotenuse c:</label>
+                <input type="number" step="any" className="form-input" value={sideC} onChange={e => setSideC(e.target.value)} placeholder="z. B. 10 (oder frei)" />
               </div>
             </div>
-
             <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
-              <button className="calc-btn" onClick={calculatePythagoras}>
-                Rechenschritte anzeigen
-              </button>
-              <button
-                className="tab-btn"
-                onClick={() => { setSideA(''); setSideB(''); setSideC(''); setCalcResult(null); }}
-              >
-                Leeren
-              </button>
+              <button className="calc-btn" onClick={calculatePythagoras}>Rechenschritte anzeigen</button>
+              <button className="tab-btn" onClick={() => { setSideA(''); setSideB(''); setSideC(''); setCalcResult(null); }}>Leeren</button>
             </div>
-
             {calcResult && (
-              <div style={{
-                marginTop: '20px',
-                padding: '16px',
-                border: '1px solid var(--primary)',
-                backgroundColor: 'var(--primary-light)',
-                borderRadius: '6px'
-              }}>
-                <div style={{ fontWeight: 700, fontSize: '16px', color: 'var(--primary)', marginBottom: '8px' }}>
-                  {calcResult.title}
-                </div>
+              <div style={{ marginTop: '20px', padding: '16px', border: '1px solid var(--primary)', backgroundColor: 'var(--primary-light)', borderRadius: '6px' }}>
+                <div style={{ fontWeight: 700, fontSize: '16px', color: 'var(--primary)', marginBottom: '8px' }}>{calcResult.title}</div>
                 <ul style={{ paddingLeft: '20px', lineHeight: '1.8', fontSize: '14px' }}>
                   {calcResult.steps.map((st, idx) => <li key={idx}><strong>{st}</strong></li>)}
                 </ul>
@@ -515,37 +436,10 @@ export default function App() {
           <div className="card">
             <h1 className="card-title">🇬🇧 Englisch – Vorbereitung Freitag</h1>
             <p className="card-desc">Zeitformen, Signalwörter und If-Sätze.</p>
-
             {englishChapters.map(chap => (
               <div key={chap.id} style={{ marginBottom: '28px' }}>
                 <h2 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '8px' }}>{chap.title}</h2>
                 <div className="theory-box">{chap.summary}</div>
-
-                <h3 style={{ fontSize: '15px', fontWeight: 600, marginTop: '12px', marginBottom: '8px' }}>Übungen:</h3>
-                {chap.exercises.map(ex => (
-                  <div key={ex.id} className="exercise-box">
-                    <div className="question-text">{ex.question}</div>
-                    <div className="options-list">
-                      {ex.options.map((opt, oIdx) => (
-                        <button
-                          key={oIdx}
-                          className={`option-btn ${stationAnswers[ex.id] === oIdx ? (oIdx === ex.correctIndex ? 'correct' : 'incorrect') : ''}`}
-                          onClick={() => {
-                            setStationAnswers(prev => ({ ...prev, [ex.id]: oIdx }));
-                            if (oIdx === ex.correctIndex) gainXp(15);
-                          }}
-                        >
-                          {opt}
-                        </button>
-                      ))}
-                    </div>
-                    {stationAnswers[ex.id] !== undefined && (
-                      <div className={`feedback-box ${stationAnswers[ex.id] === ex.correctIndex ? 'correct' : 'incorrect'}`}>
-                        {ex.explanation}
-                      </div>
-                    )}
-                  </div>
-                ))}
               </div>
             ))}
           </div>

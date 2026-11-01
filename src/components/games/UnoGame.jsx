@@ -2,80 +2,110 @@ import React, { useState, useEffect } from 'react';
 import confetti from 'canvas-confetti';
 
 const BOT_NAMES = ['Vex 👩', 'Peril 👦', 'Angst 👨‍💼'];
-const COLORS = ['red', 'blue', 'green', 'yellow'];
 
-function getRandomMathCard(color) {
-  // Dynamische Mathe-Generierung für JEDE Karte!
-  const types = ['hyp', 'kathete', 'root', 'square'];
+// Mathe-Karten-Generator (OHNE FARBEN! Es zählt nur der mathematische Wert!)
+// Jede Karte ist ein Term oder eine Zahl, die man selbst im Kopf ausrechnen muss.
+function generateMathCard() {
+  const types = ['direct', 'root', 'pyth_c', 'pyth_a', 'sum_root'];
   const t = types[Math.floor(Math.random() * types.length)];
 
-  if (t === 'hyp') {
-    const trips = [[3, 4, 5], [6, 8, 10]];
-    const [a, b, c] = trips[Math.floor(Math.random() * trips.length)];
+  // Mögliche mathematische Zielwerte (2 bis 15)
+  if (t === 'pyth_c') {
+    // c = √(a² + b²) -> 5, 10, 13
+    const trips = [
+      { a: 3, b: 4, c: 5 },
+      { a: 6, b: 8, c: 10 },
+      { a: 5, b: 12, c: 13 }
+    ];
+    const item = trips[Math.floor(Math.random() * trips.length)];
     return {
-      id: `${color}-${Math.random()}`,
-      color,
-      val: c,
-      label: `${c}`,
-      math: `√(${a}²+${b}²)`,
-      hint: `Ergibt ${c}, weil √(${a*a}+${b*b}) = √${c*c} = ${c}`,
-      type: 'number'
+      id: Math.random().toString(),
+      val: item.c,
+      text: `√(${item.a}² + ${item.b}²)`,
+      type: 'math',
+      expl: `√(${item.a*item.a} + ${item.b*item.b}) = √${item.c*item.c} = ${item.c}`
     };
   }
-  if (t === 'kathete') {
-    const trips = [[3, 4, 5], [6, 8, 10]];
-    const [a, b, c] = trips[Math.floor(Math.random() * trips.length)];
+
+  if (t === 'pyth_a') {
+    // a = √(c² - b²) -> 3, 4, 6, 8, 5, 12
+    const trips = [
+      { c: 5, b: 4, a: 3 },
+      { c: 5, b: 3, a: 4 },
+      { c: 10, b: 8, a: 6 },
+      { c: 10, b: 6, a: 8 },
+      { c: 13, b: 12, a: 5 }
+    ];
+    const item = trips[Math.floor(Math.random() * trips.length)];
     return {
-      id: `${color}-${Math.random()}`,
-      color,
-      val: a,
-      label: `${a}`,
-      math: `√(${c}²-${b}²)`,
-      hint: `Ergibt ${a}, weil √(${c*c}-${b*b}) = √${a*a} = ${a}`,
-      type: 'number'
+      id: Math.random().toString(),
+      val: item.a,
+      text: `√(${item.c}² - ${item.b}²)`,
+      type: 'math',
+      expl: `√(${item.c*item.c} - ${item.b*item.b}) = √${item.a*item.a} = ${item.a}`
     };
   }
+
   if (t === 'root') {
-    const perfects = [1, 4, 9, 16, 25, 36, 49, 64, 81];
-    const idx = Math.floor(Math.random() * perfects.length);
-    const sq = perfects[idx];
-    const root = Math.sqrt(sq);
+    // Glatte Wurzeln -> √4=2, √9=3, √16=4, √25=5, √36=6, √49=7, √64=8, √81=9, √100=10, √144=12
+    const roots = [
+      { sq: 4, r: 2 },
+      { sq: 9, r: 3 },
+      { sq: 16, r: 4 },
+      { sq: 25, r: 5 },
+      { sq: 36, r: 6 },
+      { sq: 49, r: 7 },
+      { sq: 64, r: 8 },
+      { sq: 81, r: 9 },
+      { sq: 100, r: 10 },
+      { sq: 144, r: 12 }
+    ];
+    const item = roots[Math.floor(Math.random() * roots.length)];
     return {
-      id: `${color}-${Math.random()}`,
-      color,
-      val: root,
-      label: `${root}`,
-      math: `√${sq}`,
-      hint: `Ergibt ${root}, weil ${root}² = ${sq}`,
-      type: 'number'
+      id: Math.random().toString(),
+      val: item.r,
+      text: `√${item.sq}`,
+      type: 'math',
+      expl: `√${item.sq} = ${item.r}`
     };
   }
-  // Einfache Zahl
-  const n = Math.floor(Math.random() * 9) + 1;
+
+  // Direkte Zahl (z. B. 3, 4, 5, 6, 7, 8, 10, 12)
+  const nums = [2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 13];
+  const n = nums[Math.floor(Math.random() * nums.length)];
   return {
-    id: `${color}-${Math.random()}`,
-    color,
+    id: Math.random().toString(),
     val: n,
-    label: `${n}`,
-    math: `${n}`,
-    hint: `Zahlenwert: ${n}`,
-    type: 'number'
+    text: `${n}`,
+    type: 'math',
+    expl: `Wert ist ${n}`
   };
 }
 
-function createDeck() {
-  const deck = [];
-  COLORS.forEach(color => {
-    for (let i = 0; i < 7; i++) {
-      deck.push(getRandomMathCard(color));
-    }
-    deck.push({ id: `${color}-plus2-${Math.random()}`, color, val: 20, label: '+2', math: '+2', type: 'draw2', hint: '+2 Karten' });
-    deck.push({ id: `${color}-skip-${Math.random()}`, color, val: 21, label: '⊘', math: 'Aussetzen', type: 'skip', hint: 'Gegner setzt aus' });
-  });
-  for (let i = 0; i < 4; i++) {
-    deck.push({ id: `wild-${i}-${Math.random()}`, color: 'wild', val: 50, label: '🌈', math: 'Farbwahl', type: 'wild', hint: 'Wählt neue Farbe' });
+// Aktionskarten (ohne Farben)
+function generateActionCard(type) {
+  if (type === 'plus2') {
+    return { id: Math.random().toString(), val: -2, text: '+2 KARTEN', type: 'action_plus2', expl: 'Gegner muss 2 Karten ziehen' };
   }
-  return deck.sort(() => Math.random() - 0.5);
+  if (type === 'skip') {
+    return { id: Math.random().toString(), val: -1, text: '⊘ AUSSETZEN', type: 'action_skip', expl: 'Nächster Spieler setzt aus' };
+  }
+  return { id: Math.random().toString(), val: -99, text: '★ JOKER', type: 'action_joker', expl: 'Passt auf jede Karte!' };
+}
+
+function createDeck() {
+  const d = [];
+  // 35 Mathe-Karten
+  for (let i = 0; i < 35; i++) {
+    d.push(generateMathCard());
+  }
+  // 6 Aktionskarten
+  for (let i = 0; i < 2; i++) {
+    d.push(generateActionCard('plus2'));
+    d.push(generateActionCard('skip'));
+    d.push(generateActionCard('joker'));
+  }
+  return d.sort(() => Math.random() - 0.5);
 }
 
 export default function UnoGame({ onGainXp }) {
@@ -83,11 +113,10 @@ export default function UnoGame({ onGainXp }) {
   const [playerHand, setPlayerHand] = useState([]);
   const [botHands, setBotHands] = useState({ 0: [], 1: [], 2: [] });
   const [discardPile, setDiscardPile] = useState([]);
-  const [currentTurn, setCurrentTurn] = useState(0);
-  const [currentColor, setCurrentColor] = useState('red');
+  const [currentTurn, setCurrentTurn] = useState(0); // 0: Spieler, 1: Vex, 2: Peril, 3: Angst
   const [gameStatus, setGameStatus] = useState('playing');
-  const [message, setMessage] = useState('Mathe-UNO: Lege Farbe auf Farbe oder gleichen Rechenwert (z.B. √25 auf 5)!');
-  const [lastMathExplanation, setLastMathExplanation] = useState(null);
+  const [feedback, setFeedback] = useState(null); // Feedback nach Zug (Erklärung)
+  const [penaltyMessage, setPenaltyMessage] = useState(null);
 
   useEffect(() => {
     startNewGame();
@@ -95,77 +124,106 @@ export default function UnoGame({ onGainXp }) {
 
   const startNewGame = () => {
     const full = createDeck();
-    const pHand = full.splice(0, 7);
-    const b0 = full.splice(0, 7);
-    const b1 = full.splice(0, 7);
-    const b2 = full.splice(0, 7);
+    const pHand = full.splice(0, 6);
+    const b0 = full.splice(0, 6);
+    const b1 = full.splice(0, 6);
+    const b2 = full.splice(0, 6);
+
     let startCard = full.pop();
-    while (startCard.color === 'wild') {
+    while (startCard.val < 0) {
       full.unshift(startCard);
       startCard = full.pop();
     }
+
     setDeck(full);
     setPlayerHand(pHand);
     setBotHands({ 0: b0, 1: b1, 2: b2 });
     setDiscardPile([startCard]);
-    setCurrentColor(startCard.color);
     setCurrentTurn(0);
     setGameStatus('playing');
-    setLastMathExplanation(`Startkarte: ${startCard.math} = Wert ${startCard.val}`);
-    setMessage('Du bist am Zug!');
+    setFeedback({
+      type: 'info',
+      title: 'Spiel gestartet!',
+      text: `Startkarte: ${startCard.text} (Rechne den Wert im Kopf aus und lege eine Karte mit dem GLEICHEN mathematischen Wert!)`
+    });
+    setPenaltyMessage(null);
   };
 
   const topCard = discardPile[discardPile.length - 1];
 
-  const canPlay = (card) => {
-    if (!topCard) return false;
-    if (card.color === 'wild') return true;
-    if (card.color === currentColor) return true;
-    if (card.val === topCard.val) return true;
-    return false;
-  };
-
-  const playPlayerCard = (card) => {
+  // Spieler klickt auf eine Karte (KEIN Vorab-Leuchten! Spieler muss selbst rechnen!)
+  const handlePlayerCardClick = (card) => {
     if (currentTurn !== 0 || gameStatus !== 'playing') return;
-    if (!canPlay(card)) {
-      setMessage(`❌ Passt nicht! Gesucht: Farbe ${currentColor.toUpperCase()} oder Wert ${topCard.val}!`);
+    setPenaltyMessage(null);
+
+    // Joker passt immer
+    if (card.type === 'action_joker') {
+      executePlay(card, 0);
       return;
     }
 
+    // Wenn oben eine Aktionskarte liegt, passt Aktionskarte oder jede Zahl
+    if (topCard.val < 0) {
+      executePlay(card, 0);
+      return;
+    }
+
+    // Prüfung: Stimmen die mathematischen Werte überein?
+    if (card.val === topCard.val) {
+      // RICHTIG GERECHNET!
+      onGainXp(25);
+      setFeedback({
+        type: 'success',
+        title: '✓ Perfekt gerechnet!',
+        text: `Du hast ${card.text} auf ${topCard.text} gelegt. Beide haben den exakten Wert ${card.val}!`
+      });
+      executePlay(card, 0);
+    } else {
+      // FALSCH GERECHNET! (STRAFE: 1 Strafkarte ziehen + Erklärung)
+      let drawnCard = null;
+      if (deck.length > 0) {
+        const d = [...deck];
+        drawnCard = d.pop();
+        setDeck(d);
+        setPlayerHand(prev => [...prev, drawnCard]);
+      }
+
+      setFeedback({
+        type: 'error',
+        title: '❌ Rechenfehler! (Strafkarte gezogen)',
+        text: `Deine Karte "${card.text}" hat den Wert ${card.val}, aber oben liegt "${topCard.text}" mit dem Wert ${topCard.val}! Das passt nicht zusammen.`
+      });
+      setPenaltyMessage('Du hast dich verrechnet und musstest 1 Strafkarte ziehen!');
+    }
+  };
+
+  const executePlay = (card, playerIdx) => {
     const newHand = playerHand.filter(c => c.id !== card.id);
     setPlayerHand(newHand);
     setDiscardPile(prev => [...prev, card]);
 
-    // Lerneffekt: Zeige dem Spieler genau die Rechnung an!
-    setLastMathExplanation(`💡 Rechen-Erklärung: ${card.math} hat den Wert ${card.val}. Passt auf ${topCard.math} (Wert ${topCard.val})!`);
-
-    if (card.color !== 'wild') {
-      setCurrentColor(card.color);
-    } else {
-      const colorCounts = { red: 0, blue: 0, green: 0, yellow: 0 };
-      newHand.forEach(c => { if (c.color !== 'wild') colorCounts[c.color]++; });
-      const best = Object.keys(colorCounts).reduce((a, b) => colorCounts[a] > colorCounts[b] ? a : b);
-      setCurrentColor(best);
-    }
-
-    onGainXp(15);
-
     if (newHand.length === 0) {
       setGameStatus('won');
-      onGainXp(100);
+      onGainXp(150);
       confetti({ particleCount: 150 });
-      setMessage('🎉 UNO! Du hast gewonnen! (+100 XP)');
+      setFeedback({
+        type: 'success',
+        title: '🏆 SIEG!',
+        text: 'Du hast als Erster alle Karten durch fehlerfreies Kopfrechnen abgelegt!'
+      });
       return;
     }
 
-    let nextTurn = 1;
-    if (card.type === 'skip') {
-      nextTurn = 2;
-    } else if (card.type === 'draw2') {
+    // Nächster Zug
+    let next = 1;
+    if (card.type === 'action_skip') {
+      next = 2; // Überspringe Vex
+    } else if (card.type === 'action_plus2') {
+      // Vex zieht 2
       drawCardsForBot(0, 2);
-      nextTurn = 2;
+      next = 2;
     }
-    setCurrentTurn(nextTurn);
+    setCurrentTurn(next);
   };
 
   const drawCardsForBot = (botIdx, count) => {
@@ -178,14 +236,21 @@ export default function UnoGame({ onGainXp }) {
     });
   };
 
-  const playerDraw = () => {
+  // Spieler entscheidet sich freiwillig zum Ziehen
+  const playerDrawCard = () => {
     if (currentTurn !== 0 || gameStatus !== 'playing') return;
     if (deck.length === 0) return;
-    const newDeck = [...deck];
-    const drawn = newDeck.pop();
-    setDeck(newDeck);
+
+    const d = [...deck];
+    const drawn = d.pop();
+    setDeck(d);
     setPlayerHand(prev => [...prev, drawn]);
-    setMessage(`Du ziehst: ${drawn.math} (${drawn.hint}). Vex ist am Zug.`);
+    setFeedback({
+      type: 'info',
+      title: 'Karte gezogen',
+      text: `Du hast gezogen: "${drawn.text}". Vex ist jetzt am Zug.`
+    });
+    setPenaltyMessage(null);
     setCurrentTurn(1);
   };
 
@@ -198,35 +263,43 @@ export default function UnoGame({ onGainXp }) {
 
     const timer = setTimeout(() => {
       const bHand = [...botHands[botIndex]];
-      const playable = bHand.find(c => canPlay(c));
+      const playable = bHand.find(c => {
+        if (c.type === 'action_joker') return true;
+        if (topCard.val < 0) return true;
+        return c.val === topCard.val;
+      });
 
       if (playable) {
         const newBHand = bHand.filter(c => c.id !== playable.id);
         setBotHands(prev => ({ ...prev, [botIndex]: newBHand }));
         setDiscardPile(prev => [...prev, playable]);
 
-        setLastMathExplanation(`🤖 ${botName} legt ${playable.math} (= ${playable.val})!`);
-
-        if (playable.color !== 'wild') {
-          setCurrentColor(playable.color);
-        } else {
-          setCurrentColor(COLORS[Math.floor(Math.random() * 4)]);
-        }
+        setFeedback({
+          type: 'bot',
+          title: `🤖 ${botName} ist am Zug`,
+          text: `${botName} legt "${playable.text}" (Wert ${playable.val}) auf "${topCard.text}"!`
+        });
 
         if (newBHand.length === 0) {
           setGameStatus('lost');
-          setMessage(`💀 ${botName} hat gewonnen!`);
+          setFeedback({
+            type: 'error',
+            title: '💀 Niederlage',
+            text: `${botName} hat als Erster alle Karten abgelegt!`
+          });
           return;
         }
 
         let nextPlayer = (currentTurn + 1) % 4;
-        if (playable.type === 'skip') nextPlayer = (nextPlayer + 1) % 4;
-        else if (playable.type === 'draw2') {
+        if (playable.type === 'action_skip') nextPlayer = (nextPlayer + 1) % 4;
+        else if (playable.type === 'action_plus2') {
           if (nextPlayer === 0) {
+            // Spieler zieht 2
             const d = [...deck];
             setPlayerHand(p => [...p, d.pop(), d.pop()].filter(Boolean));
             setDeck(d);
             nextPlayer = 1;
+            setPenaltyMessage(`${botName} hat +2 gelegt! Du musstest 2 Karten ziehen.`);
           } else {
             drawCardsForBot(nextPlayer - 1, 2);
             nextPlayer = (nextPlayer + 1) % 4;
@@ -240,146 +313,212 @@ export default function UnoGame({ onGainXp }) {
           setDeck(d);
           setBotHands(prev => ({ ...prev, [botIndex]: [...prev[botIndex], dr] }));
         }
+        setFeedback({
+          type: 'bot',
+          title: `🤖 ${botName}`,
+          text: `${botName} konnte den Wert ${topCard.val} nicht bedienen und hat gezogen.`
+        });
         setCurrentTurn((currentTurn + 1) % 4);
       }
-    }, 1100);
+    }, 1200);
 
     return () => clearTimeout(timer);
-  }, [currentTurn, gameStatus]);
-
-  const getColorHex = (c) => {
-    switch (c) {
-      case 'red': return '#dc2626';
-      case 'blue': return '#2563eb';
-      case 'green': return '#16a34a';
-      case 'yellow': return '#ca8a04';
-      default: return '#1e293b';
-    }
-  };
+  }, [currentTurn, gameStatus, topCard]);
 
   return (
     <div style={{
-      backgroundColor: '#7f1d1d',
+      backgroundColor: '#1e293b', // Schlichtes Dunkelblau-Grau OHNE Kitsch-Farben
       borderRadius: '12px',
       padding: '16px',
       color: '#ffffff',
-      minHeight: '600px',
+      minHeight: '620px',
       display: 'flex',
       flexDirection: 'column',
-      justifyContent: 'space-between'
+      justifyContent: 'space-between',
+      boxShadow: '0 4px 16px rgba(0,0,0,0.3)'
     }}>
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ fontWeight: 800, fontSize: '18px' }}>🎴 MATHE-UNO NO MERCY</div>
+        <div>
+          <div style={{ fontWeight: 800, fontSize: '18px', color: '#f8fafc' }}>
+            🎴 MATHE-UNO (Reiner Rechenwert, keine Farben)
+          </div>
+          <div style={{ fontSize: '11px', color: '#94a3b8' }}>
+            Rechne im Kopf: Du darfst nur Karten mit dem gleichen Ergebnis ablegen!
+          </div>
+        </div>
         <button
           onClick={startNewGame}
-          style={{ backgroundColor: '#ffffff', color: '#7f1d1d', border: 'none', padding: '6px 14px', borderRadius: '16px', fontWeight: 700, fontSize: '12px' }}
+          style={{
+            backgroundColor: '#3b82f6',
+            color: '#ffffff',
+            border: 'none',
+            padding: '6px 14px',
+            borderRadius: '16px',
+            fontWeight: 700,
+            fontSize: '12px',
+            cursor: 'pointer'
+          }}
         >
-          🔄 Neu
+          🔄 Neues Spiel
         </button>
       </div>
 
-      {/* Bots */}
-      <div style={{ display: 'flex', justifyContent: 'space-around', margin: '8px 0' }}>
-        <div style={{ padding: '6px 10px', borderRadius: '6px', backgroundColor: currentTurn === 1 ? '#ef4444' : 'rgba(0,0,0,0.4)', textAlign: 'center', fontSize: '12px' }}>
-          <div>Vex 👩</div>
-          <div>{botHands[0]?.length || 0} Karten</div>
+      {/* Die 3 Computergegner */}
+      <div style={{ display: 'flex', justifyContent: 'space-around', margin: '10px 0' }}>
+        <div style={{
+          padding: '6px 12px',
+          borderRadius: '8px',
+          backgroundColor: currentTurn === 1 ? '#3b82f6' : '#334155',
+          border: currentTurn === 1 ? '2px solid #ffffff' : '1px solid #475569',
+          textAlign: 'center',
+          fontSize: '12px'
+        }}>
+          <div style={{ fontWeight: 700 }}>Vex 👩 (Links)</div>
+          <div style={{ color: '#cbd5e1' }}>{botHands[0]?.length || 0} Karten</div>
         </div>
-        <div style={{ padding: '6px 10px', borderRadius: '6px', backgroundColor: currentTurn === 2 ? '#ef4444' : 'rgba(0,0,0,0.4)', textAlign: 'center', fontSize: '12px' }}>
-          <div>Peril 👦</div>
-          <div>{botHands[1]?.length || 0} Karten</div>
+
+        <div style={{
+          padding: '6px 12px',
+          borderRadius: '8px',
+          backgroundColor: currentTurn === 2 ? '#3b82f6' : '#334155',
+          border: currentTurn === 2 ? '2px solid #ffffff' : '1px solid #475569',
+          textAlign: 'center',
+          fontSize: '12px'
+        }}>
+          <div style={{ fontWeight: 700 }}>Peril 👦 (Oben)</div>
+          <div style={{ color: '#cbd5e1' }}>{botHands[1]?.length || 0} Karten</div>
         </div>
-        <div style={{ padding: '6px 10px', borderRadius: '6px', backgroundColor: currentTurn === 3 ? '#ef4444' : 'rgba(0,0,0,0.4)', textAlign: 'center', fontSize: '12px' }}>
-          <div>Angst 👨‍💼</div>
-          <div>{botHands[2]?.length || 0} Karten</div>
+
+        <div style={{
+          padding: '6px 12px',
+          borderRadius: '8px',
+          backgroundColor: currentTurn === 3 ? '#3b82f6' : '#334155',
+          border: currentTurn === 3 ? '2px solid #ffffff' : '1px solid #475569',
+          textAlign: 'center',
+          fontSize: '12px'
+        }}>
+          <div style={{ fontWeight: 700 }}>Angst 👨‍💼 (Rechts)</div>
+          <div style={{ color: '#cbd5e1' }}>{botHands[2]?.length || 0} Karten</div>
         </div>
       </div>
 
-      {/* Lerneffekt: Rechen-Erklärung */}
-      {lastMathExplanation && (
-        <div style={{ backgroundColor: 'rgba(0,0,0,0.6)', padding: '8px 12px', borderRadius: '6px', textAlign: 'center', fontSize: '13px', color: '#fde047', fontWeight: 600 }}>
-          {lastMathExplanation}
+      {/* Mitteilung / Rechen-Feedback */}
+      {feedback && (
+        <div style={{
+          backgroundColor: feedback.type === 'error' ? 'rgba(239, 68, 68, 0.25)' : (feedback.type === 'success' ? 'rgba(34, 197, 94, 0.25)' : 'rgba(51, 65, 85, 0.7)'),
+          border: `1px solid ${feedback.type === 'error' ? '#ef4444' : (feedback.type === 'success' ? '#22c55e' : '#64748b')}`,
+          borderRadius: '8px',
+          padding: '10px 14px',
+          textAlign: 'center',
+          fontSize: '13px'
+        }}>
+          <div style={{ fontWeight: 800, color: feedback.type === 'error' ? '#fca5a5' : (feedback.type === 'success' ? '#86efac' : '#93c5fd'), marginBottom: '2px' }}>
+            {feedback.title}
+          </div>
+          <div>{feedback.text}</div>
+          {penaltyMessage && (
+            <div style={{ color: '#f87171', fontWeight: 700, marginTop: '4px' }}>{penaltyMessage}</div>
+          )}
         </div>
       )}
 
-      {/* Tischmitte */}
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '24px', margin: '14px 0' }}>
+      {/* Spieltisch-Mitte */}
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '28px', margin: '14px 0' }}>
+        {/* Ziehstapel */}
         <div
-          onClick={playerDraw}
+          onClick={playerDrawCard}
           style={{
-            width: '80px',
-            height: '115px',
+            width: '90px',
+            height: '130px',
             backgroundColor: '#0f172a',
-            border: '2px solid #ffffff',
-            borderRadius: '8px',
+            border: '2px solid #64748b',
+            borderRadius: '10px',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'center',
             alignItems: 'center',
-            cursor: currentTurn === 0 ? 'pointer' : 'default'
+            cursor: currentTurn === 0 ? 'pointer' : 'default',
+            boxShadow: '0 4px 10px rgba(0,0,0,0.4)'
           }}
         >
-          <div style={{ fontWeight: 900, color: '#ef4444', fontSize: '16px' }}>UNO</div>
-          <div style={{ fontSize: '10px' }}>Ziehen ({deck.length})</div>
+          <div style={{ fontWeight: 900, color: '#38bdf8', fontSize: '18px' }}>STAPEL</div>
+          <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '4px' }}>Ziehen ({deck.length})</div>
         </div>
 
+        {/* Oberste Karte (Ablagestapel) */}
         {topCard && (
           <div style={{
-            width: '90px',
-            height: '125px',
-            backgroundColor: getColorHex(currentColor),
-            border: '3px solid #ffffff',
-            borderRadius: '10px',
+            width: '110px',
+            height: '145px',
+            backgroundColor: '#ffffff',
+            color: '#0f172a',
+            border: '3px solid #0f172a',
+            borderRadius: '12px',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
-            padding: '6px'
+            padding: '10px',
+            boxShadow: '0 6px 16px rgba(0,0,0,0.4)',
+            textAlign: 'center'
           }}>
-            <div style={{ fontWeight: 800, fontSize: '13px' }}>{topCard.val}</div>
-            <div style={{ textAlign: 'center', fontWeight: 800, fontSize: '16px' }}>{topCard.math}</div>
-            <div style={{ textAlign: 'right', fontWeight: 800, fontSize: '13px' }}>{topCard.val}</div>
+            <div style={{ fontSize: '11px', fontWeight: 700, color: '#64748b' }}>OFFENE KARTE</div>
+            <div style={{ fontSize: '18px', fontWeight: 900, color: '#1e293b', wordBreak: 'break-word' }}>
+              {topCard.text}
+            </div>
+            <div style={{ fontSize: '10px', color: '#64748b' }}>
+              {topCard.val > 0 ? `(Rechne den Wert!)` : topCard.expl}
+            </div>
           </div>
         )}
       </div>
 
-      {/* Status */}
-      <div style={{ textAlign: 'center', fontSize: '13px', fontWeight: 600 }}>
-        {message}
-      </div>
-
-      {/* Handkarten */}
+      {/* Eigene Handkarten (KEINE Farben, KEIN Verraten, ob sie passt!) */}
       <div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', fontSize: '12px' }}>
-          <div>Deine Karten ({playerHand.length}) {currentTurn === 0 && <span style={{ color: '#fde047' }}>◀ DRAN!</span>}</div>
-          <div>Farbe: <strong style={{ color: getColorHex(currentColor), backgroundColor: '#ffffff', padding: '1px 6px', borderRadius: '4px' }}>{currentColor.toUpperCase()}</strong></div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+          <div style={{ fontWeight: 800, fontSize: '14px' }}>
+            🧙‍♂️ Deine Handkarten ({playerHand.length})
+            {currentTurn === 0 ? <span style={{ color: '#4ade80', marginLeft: '6px' }}>◀ DU BIST DRAN (Klicke zum Legen)</span> : <span style={{ color: '#94a3b8', marginLeft: '6px' }}>• Bot überlegt...</span>}
+          </div>
         </div>
 
-        <div style={{ display: 'flex', gap: '6px', overflowX: 'auto', paddingBottom: '8px' }}>
+        <div style={{
+          display: 'flex',
+          gap: '8px',
+          overflowX: 'auto',
+          paddingBottom: '8px',
+          WebkitOverflowScrolling: 'touch'
+        }}>
           {playerHand.map((card) => {
-            const playable = canPlay(card);
             return (
               <div
                 key={card.id}
-                onClick={() => playPlayerCard(card)}
+                onClick={() => handlePlayerCardClick(card)}
                 style={{
-                  minWidth: '70px',
-                  height: '105px',
-                  backgroundColor: getColorHex(card.color),
-                  border: playable && currentTurn === 0 ? '2px solid #fde047' : '1px solid #ffffff',
-                  borderRadius: '6px',
+                  minWidth: '85px',
+                  height: '120px',
+                  backgroundColor: '#ffffff',
+                  color: '#0f172a',
+                  border: '2px solid #cbd5e1',
+                  borderRadius: '10px',
                   display: 'flex',
                   flexDirection: 'column',
                   justifyContent: 'space-between',
-                  padding: '5px',
-                  cursor: playable && currentTurn === 0 ? 'pointer' : 'default',
-                  opacity: playable && currentTurn === 0 ? 1 : 0.6,
-                  transform: playable && currentTurn === 0 ? 'translateY(-4px)' : 'none',
-                  flexShrink: 0
+                  padding: '8px',
+                  cursor: currentTurn === 0 ? 'pointer' : 'default',
+                  flexShrink: 0,
+                  boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
+                  transition: 'transform 0.1s ease',
+                  textAlign: 'center'
                 }}
               >
-                <div style={{ fontWeight: 800, fontSize: '12px' }}>{card.val}</div>
-                <div style={{ textAlign: 'center', fontWeight: 700, fontSize: '13px' }}>{card.math}</div>
-                <div style={{ textAlign: 'right', fontWeight: 800, fontSize: '12px' }}>{card.val}</div>
+                <div style={{ fontSize: '10px', fontWeight: 700, color: '#64748b' }}>MATHE</div>
+                <div style={{ fontSize: '15px', fontWeight: 900, color: '#0f172a', wordBreak: 'break-word' }}>
+                  {card.text}
+                </div>
+                <div style={{ fontSize: '9px', color: '#94a3b8' }}>
+                  {card.type.startsWith('action') ? 'Aktion' : 'Term'}
+                </div>
               </div>
             );
           })}

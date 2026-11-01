@@ -4,7 +4,6 @@ import { generateExam } from './data/examGenerator';
 import { generateDynamicStation } from './data/stationGenerator';
 import { getRank } from './data/gameEngine';
 import BossFight from './components/BossFight';
-import SurvivalMode from './components/SurvivalMode';
 import GameHub from './components/GameHub';
 import './index.css';
 
@@ -80,12 +79,11 @@ export default function App() {
     if (a && b && !c) {
       const res = Math.sqrt(a * a + b * b);
       setCalcResult({
-        title: 'Gesucht: Hypotenuse c (längste Seite)',
+        title: 'Gesucht: Hypotenuse c',
         steps: [
-          `1. Grundformel: a² + b² = c²`,
-          `2. Einsetzen: ${a}² + ${b}² = c²`,
-          `3. Quadrieren: ${a * a} + ${b * b} = ${a * a + b * b}`,
-          `4. Wurzel ziehen: c = √(${a * a + b * b}) ≈ ${res.toFixed(2)} cm`
+          `1. c² = a² + b² = ${a}² + ${b}²`,
+          `2. c² = ${a * a} + ${b * b} = ${a * a + b * b}`,
+          `3. c = √(${a * a + b * b}) ≈ ${res.toFixed(2)} cm`
         ]
       });
     } else if (c && b && !a) {
@@ -95,10 +93,10 @@ export default function App() {
       }
       const res = Math.sqrt(c * c - b * b);
       setCalcResult({
-        title: 'Gesucht: Kathete a (c und b bekannt)',
+        title: 'Gesucht: Kathete a',
         steps: [
-          `1. a² = c² - b²`,
-          `2. a² = ${c}² - ${b}² = ${c * c} - ${b * b} = ${c * c - b * b}`,
+          `1. a² = c² - b² = ${c}² - ${b}²`,
+          `2. a² = ${c * c} - ${b * b} = ${c * c - b * b}`,
           `3. a = √(${c * c - b * b}) ≈ ${res.toFixed(2)} cm`
         ]
       });
@@ -109,10 +107,10 @@ export default function App() {
       }
       const res = Math.sqrt(c * c - a * a);
       setCalcResult({
-        title: 'Gesucht: Kathete b (c und a bekannt)',
+        title: 'Gesucht: Kathete b',
         steps: [
-          `1. b² = c² - a²`,
-          `2. b² = ${c}² - ${a}² = ${c * c} - ${a * a} = ${c * c - a * a}`,
+          `1. b² = c² - a² = ${c}² - ${a}²`,
+          `2. b² = ${c * c} - ${a * a} = ${c * c - a * a}`,
           `3. b = √(${c * c - a * a}) ≈ ${res.toFixed(2)} cm`
         ]
       });
@@ -138,57 +136,58 @@ export default function App() {
 
   return (
     <div>
-      {/* Header mit Rang- und XP-Anzeige */}
+      {/* Header für Mobile & iOS Safe-Area optimiert */}
       <header className="app-header">
-        <div className="header-inner">
+        <div className="header-top">
           <div>
-            <div className="app-title">Klassenarbeits-Coach & Spielehalle (9a)</div>
-            <div style={{ fontSize: '12px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '8px', marginTop: '2px' }}>
+            <div className="app-title">Lern-Coach 9a</div>
+            <div className="rank-badge">
               <span>{userRank.icon} <strong>{userRank.title}</strong></span>
               <span>•</span>
-              <span style={{ color: 'var(--primary)', fontWeight: 600 }}>{xp} XP gesammelt</span>
+              <span style={{ color: 'var(--primary)', fontWeight: 700 }}>{xp} XP</span>
             </div>
           </div>
-
-          <nav className="tab-nav" style={{ flexWrap: 'wrap' }}>
-            <button
-              className={`tab-btn ${activeTab === 'arcade' ? 'active' : ''}`}
-              onClick={() => setActiveTab('arcade')}
-            >
-              🎮 4 Minispiele (UNO, Kniffel, Among Us, Bloons)
-            </button>
-            <button
-              className={`tab-btn ${activeTab === 'boss' ? 'active' : ''}`}
-              onClick={() => setActiveTab('boss')}
-            >
-              ⚔️ Boss-Fight Arena
-            </button>
-            <button
-              className={`tab-btn ${activeTab === 'stations' ? 'active' : ''}`}
-              onClick={() => setActiveTab('stations')}
-            >
-              🚩 Grundlernen: Stationen 1-5
-            </button>
-            <button
-              className={`tab-btn ${activeTab === 'exam' ? 'active' : ''}`}
-              onClick={() => setActiveTab('exam')}
-            >
-              📝 Probeklassenarbeit
-            </button>
-            <button
-              className={`tab-btn ${activeTab === 'calc' ? 'active' : ''}`}
-              onClick={() => setActiveTab('calc')}
-            >
-              🔢 Rechner
-            </button>
-            <button
-              className={`tab-btn ${activeTab === 'english' ? 'active' : ''}`}
-              onClick={() => setActiveTab('english')}
-            >
-              🇬🇧 Englisch
-            </button>
-          </nav>
         </div>
+
+        {/* Swipe-fähige horizontale Navigation ohne Überlappung */}
+        <nav className="tab-nav">
+          <button
+            className={`tab-btn ${activeTab === 'arcade' ? 'active' : ''}`}
+            onClick={() => setActiveTab('arcade')}
+          >
+            🎮 4 Minispiele
+          </button>
+          <button
+            className={`tab-btn ${activeTab === 'boss' ? 'active' : ''}`}
+            onClick={() => setActiveTab('boss')}
+          >
+            ⚔️ Boss-Arena
+          </button>
+          <button
+            className={`tab-btn ${activeTab === 'stations' ? 'active' : ''}`}
+            onClick={() => setActiveTab('stations')}
+          >
+            🚩 Stationen 1-5
+          </button>
+          <button
+            className={`tab-btn ${activeTab === 'exam' ? 'active' : ''}`}
+            onClick={() => setActiveTab('exam')}
+          >
+            📝 Klassenarbeit
+          </button>
+          <button
+            className={`tab-btn ${activeTab === 'calc' ? 'active' : ''}`}
+            onClick={() => setActiveTab('calc')}
+          >
+            🔢 Rechner
+          </button>
+          <button
+            className={`tab-btn ${activeTab === 'english' ? 'active' : ''}`}
+            onClick={() => setActiveTab('english')}
+          >
+            🇬🇧 Englisch
+          </button>
+        </nav>
       </header>
 
       {/* Hauptinhalt */}
@@ -207,36 +206,35 @@ export default function App() {
         {/* ===================== TAB: LERNSTATIONEN ===================== */}
         {activeTab === 'stations' && (
           <div>
-            <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '12px', marginBottom: '16px' }}>
+            <div className="tab-nav" style={{ marginBottom: '14px' }}>
               {mathChapters.map((station, idx) => (
                 <button
                   key={station.id}
                   className={`tab-btn ${selectedStationIndex === idx ? 'active' : ''}`}
                   onClick={() => setSelectedStationIndex(idx)}
-                  style={{ whiteSpace: 'nowrap' }}
                 >
-                  Station {idx + 1}: {station.title.split('–')[0]}
+                  Station {idx + 1}
                 </button>
               ))}
             </div>
 
             <div className="card">
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px', marginBottom: '8px' }}>
                 <h1 className="card-title">{currentStation.title}</h1>
                 <button
                   className="calc-btn"
                   onClick={() => regenerateStation(selectedStationIndex)}
-                  style={{ fontSize: '13px', padding: '8px 12px' }}
+                  style={{ width: 'auto', fontSize: '12px', padding: '6px 12px' }}
                 >
-                  🎲 Neue Zahlen für diese Station
+                  🎲 Neue Zahlen
                 </button>
               </div>
               <p className="card-desc">{currentStation.description}</p>
 
               <div className="theory-box">{currentStation.summary}</div>
 
-              <h2 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '12px', marginTop: '24px' }}>
-                Dynamische Aufgaben (Jede richtige Antwort gibt +15 XP!):
+              <h2 style={{ fontSize: '16px', fontWeight: 800, marginBottom: '12px', marginTop: '20px' }}>
+                Dynamische Aufgaben (+15 XP):
               </h2>
 
               {currentExercises.map((ex, exIdx) => {
@@ -246,7 +244,7 @@ export default function App() {
 
                 return (
                   <div key={ex.id} className="exercise-box">
-                    <div style={{ fontSize: '13px', color: 'var(--text-muted)', marginBottom: '4px' }}>
+                    <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '4px' }}>
                       Aufgabe {exIdx + 1}: {ex.title}
                     </div>
                     <div className="question-text">{ex.question}</div>
@@ -277,7 +275,7 @@ export default function App() {
                     {isAnswered && (
                       <div className={`feedback-box ${isCorrect ? 'correct' : 'incorrect'}`}>
                         <div style={{ fontWeight: 700, marginBottom: '4px' }}>
-                          {isCorrect ? '✓ Super, richtig gerechnet! (+15 XP)' : '✗ Noch nicht ganz richtig.'}
+                          {isCorrect ? '✓ Super! (+15 XP)' : '✗ Falsch.'}
                         </div>
                         <div>{ex.explanation}</div>
                       </div>
@@ -286,13 +284,13 @@ export default function App() {
                 );
               })}
 
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px' }}>
-                <button className="tab-btn" onClick={() => regenerateStation(selectedStationIndex)}>
-                  🔄 Gleiche Station mit neuen Zahlen nochmal
+              <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
+                <button className="tab-btn" style={{ flex: 1 }} onClick={() => regenerateStation(selectedStationIndex)}>
+                  🔄 Nochmal üben
                 </button>
                 {selectedStationIndex < mathChapters.length - 1 && (
-                  <button className="calc-btn" onClick={() => setSelectedStationIndex(selectedStationIndex + 1)}>
-                    Zur nächsten Station weiter ➔
+                  <button className="calc-btn" style={{ flex: 1 }} onClick={() => setSelectedStationIndex(selectedStationIndex + 1)}>
+                    Weiter ➔
                   </button>
                 )}
               </div>
@@ -303,25 +301,23 @@ export default function App() {
         {/* ===================== TAB: PROBEKLASSENARBEIT ===================== */}
         {activeTab === 'exam' && (
           <div className="card">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', flexWrap: 'wrap', gap: '8px' }}>
-              <h1 className="card-title">📝 Unendliche Probeklassenarbeit</h1>
-              <button className="calc-btn" onClick={startNewExam}>
-                🎲 Neue Arbeit mit neuen Zahlen
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+              <h1 className="card-title">📝 Probeklassenarbeit</h1>
+              <button className="calc-btn" onClick={startNewExam} style={{ width: 'auto', fontSize: '12px', padding: '6px 12px' }}>
+                🎲 Neu
               </button>
             </div>
-            <p className="card-desc">
-              8 Aufgaben aus dem Stoff vom Mittwoch. Nach Abgabe siehst du sofort alle detaillierten Schritte.
-            </p>
+            <p className="card-desc">8 Aufgaben wie am Mittwoch in der Schule.</p>
 
             {examSubmitted && (
               <div style={{
-                padding: '16px',
+                padding: '14px',
                 backgroundColor: examScore >= 6 ? 'var(--success-bg)' : 'var(--error-bg)',
                 border: `2px solid ${examScore >= 6 ? 'var(--success)' : 'var(--error)'}`,
                 borderRadius: '8px',
-                marginBottom: '20px'
+                marginBottom: '16px'
               }}>
-                <div style={{ fontSize: '18px', fontWeight: 700, color: examScore >= 6 ? 'var(--success)' : 'var(--error)' }}>
+                <div style={{ fontSize: '16px', fontWeight: 800, color: examScore >= 6 ? 'var(--success)' : 'var(--error)' }}>
                   Ergebnis: {examScore} von {examQuestions.length} Punkten!
                 </div>
               </div>
@@ -333,9 +329,8 @@ export default function App() {
 
               return (
                 <div key={q.id} className="exercise-box">
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: 'var(--text-muted)', marginBottom: '4px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: 'var(--text-muted)', marginBottom: '4px' }}>
                     <span>{q.title}</span>
-                    <span>{q.category}</span>
                   </div>
                   <div className="question-text">{q.question}</div>
 
@@ -364,10 +359,10 @@ export default function App() {
 
                   {examSubmitted && (
                     <div className={`feedback-box ${isCorrect ? 'correct' : 'incorrect'}`}>
-                      <div style={{ fontWeight: 700, marginBottom: '6px' }}>
+                      <div style={{ fontWeight: 700, marginBottom: '4px' }}>
                         {isCorrect ? '✓ Richtig!' : `✗ Richtig ist: ${q.correctAnswer}`}
                       </div>
-                      <ul style={{ paddingLeft: '20px', fontSize: '13px', lineHeight: '1.6' }}>
+                      <ul style={{ paddingLeft: '18px', fontSize: '12px', lineHeight: '1.5' }}>
                         {q.steps.map((st, sIdx) => <li key={sIdx}>{st}</li>)}
                       </ul>
                     </div>
@@ -385,13 +380,12 @@ export default function App() {
                   examQuestions.forEach(q => { if (examAnswers[q.id] === q.correctAnswer) sc++; });
                   gainXp(sc * 20);
                 }}
-                style={{ width: '100%', padding: '14px', fontSize: '16px', marginTop: '12px' }}
               >
-                Klassenarbeit abgeben & Auswertung ansehen
+                Abgeben & Lösung ansehen
               </button>
             ) : (
-              <button className="calc-btn" onClick={startNewExam} style={{ width: '100%', padding: '14px', fontSize: '16px', marginTop: '12px' }}>
-                🔄 Neue Klassenarbeit starten
+              <button className="calc-btn" onClick={startNewExam}>
+                🔄 Neue Arbeit starten
               </button>
             )}
           </div>
@@ -400,9 +394,9 @@ export default function App() {
         {/* ===================== TAB: RECHNER ===================== */}
         {activeTab === 'calc' && (
           <div className="card">
-            <h1 className="card-title">🔢 Pythagoras-Schritt-Rechner (mit c)</h1>
-            <p className="card-desc">Gib genau 2 Seiten ein, die 3. wird mit allen Einzelschritten berechnet.</p>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px', marginTop: '16px' }}>
+            <h1 className="card-title">🔢 Pythagoras-Rechner</h1>
+            <p className="card-desc">Gib 2 Seiten ein, die dritte wird berechnet.</p>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '8px', marginTop: '12px' }}>
               <div className="form-group">
                 <label className="form-label">Kathete a:</label>
                 <input type="number" step="any" className="form-input" value={sideA} onChange={e => setSideA(e.target.value)} placeholder="z. B. 6" />
@@ -417,13 +411,13 @@ export default function App() {
               </div>
             </div>
             <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
-              <button className="calc-btn" onClick={calculatePythagoras}>Rechenschritte anzeigen</button>
+              <button className="calc-btn" onClick={calculatePythagoras}>Berechnen</button>
               <button className="tab-btn" onClick={() => { setSideA(''); setSideB(''); setSideC(''); setCalcResult(null); }}>Leeren</button>
             </div>
             {calcResult && (
-              <div style={{ marginTop: '20px', padding: '16px', border: '1px solid var(--primary)', backgroundColor: 'var(--primary-light)', borderRadius: '6px' }}>
-                <div style={{ fontWeight: 700, fontSize: '16px', color: 'var(--primary)', marginBottom: '8px' }}>{calcResult.title}</div>
-                <ul style={{ paddingLeft: '20px', lineHeight: '1.8', fontSize: '14px' }}>
+              <div style={{ marginTop: '16px', padding: '12px', border: '1px solid var(--primary)', backgroundColor: 'var(--primary-light)', borderRadius: '8px' }}>
+                <div style={{ fontWeight: 700, fontSize: '15px', color: 'var(--primary)', marginBottom: '6px' }}>{calcResult.title}</div>
+                <ul style={{ paddingLeft: '18px', lineHeight: '1.6', fontSize: '13px' }}>
                   {calcResult.steps.map((st, idx) => <li key={idx}><strong>{st}</strong></li>)}
                 </ul>
               </div>
@@ -434,11 +428,11 @@ export default function App() {
         {/* ===================== TAB: ENGLISCH ===================== */}
         {activeTab === 'english' && (
           <div className="card">
-            <h1 className="card-title">🇬🇧 Englisch – Vorbereitung Freitag</h1>
+            <h1 className="card-title">🇬🇧 Englisch – Freitag</h1>
             <p className="card-desc">Zeitformen, Signalwörter und If-Sätze.</p>
             {englishChapters.map(chap => (
-              <div key={chap.id} style={{ marginBottom: '28px' }}>
-                <h2 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '8px' }}>{chap.title}</h2>
+              <div key={chap.id} style={{ marginBottom: '20px' }}>
+                <h2 style={{ fontSize: '16px', fontWeight: 800, marginBottom: '6px' }}>{chap.title}</h2>
                 <div className="theory-box">{chap.summary}</div>
               </div>
             ))}

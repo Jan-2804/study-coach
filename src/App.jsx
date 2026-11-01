@@ -1,11 +1,21 @@
 import React, { useState } from 'react';
 import { mathChapters, englishChapters } from './data/curriculum';
 import { generateExam } from './data/examGenerator';
+import { generateDynamicStation } from './data/stationGenerator';
 import './index.css';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('stations'); // 'stations' | 'exam' | 'calc' | 'english'
   const [selectedStationIndex, setSelectedStationIndex] = useState(0);
+
+  // Dynamische Aufgaben für die 5 Stationen (wechseln bei jedem Neu-Generieren!)
+  const [stationExercises, setStationExercises] = useState(() => ({
+    0: generateDynamicStation(0),
+    1: generateDynamicStation(1),
+    2: generateDynamicStation(2),
+    3: generateDynamicStation(3),
+    4: generateDynamicStation(4)
+  }));
   const [stationAnswers, setStationAnswers] = useState({});
 
   // Für interaktiven Pythagoras-Rechner
@@ -25,17 +35,22 @@ export default function App() {
     setExamSubmitted(false);
   };
 
-  const handleSelectStationOption = (exId, optIdx) => {
-    setStationAnswers(prev => ({ ...prev, [exId]: optIdx }));
+  const regenerateStation = (stationIdx) => {
+    setStationExercises(prev => ({
+      ...prev,
+      [stationIdx]: generateDynamicStation(stationIdx)
+    }));
+    // Antworten für diese Station zurücksetzen
+    setStationAnswers(prev => {
+      const next = { ...prev };
+      const currentList = stationExercises[stationIdx] || [];
+      currentList.forEach(ex => delete next[ex.id]);
+      return next;
+    });
   };
 
-  const resetStationAnswers = (stationId) => {
-    const newAnswers = { ...stationAnswers };
-    const station = mathChapters.find(s => s.id === stationId);
-    if (station) {
-      station.exercises.forEach(ex => delete newAnswers[ex.id]);
-    }
-    setStationAnswers(newAnswers);
+  const handleSelectStationOption = (exId, optIdx) => {
+    setStationAnswers(prev => ({ ...prev, [exId]: optIdx }));
   };
 
   const calculatePythagoras = () => {
@@ -132,6 +147,7 @@ export default function App() {
   };
 
   const currentStation = mathChapters[selectedStationIndex];
+  const currentExercises = stationExercises[selectedStationIndex] || [];
 
   // Score der Klassenarbeit
   let examScore = 0;
@@ -197,14 +213,14 @@ export default function App() {
             </div>
 
             <div className="card">
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
                 <h1 className="card-title">{currentStation.title}</h1>
                 <button
-                  className="tab-btn"
-                  onClick={() => resetStationAnswers(currentStation.id)}
-                  style={{ fontSize: '12px' }}
+                  className="calc-btn"
+                  onClick={() => regenerateStation(selectedStationIndex)}
+                  style={{ fontSize: '13px', padding: '8px 12px' }}
                 >
-                  🔄 Diese Station zurücksetzen & nochmal üben
+                  🎲 Neue Zahlen für diese Station generieren
                 </button>
               </div>
               <p className="card-desc">{currentStation.description}</p>
@@ -214,12 +230,12 @@ export default function App() {
                 {currentStation.summary}
               </div>
 
-              {/* Aufgaben */}
+              {/* Dynamische Aufgaben */}
               <h2 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '12px', marginTop: '24px' }}>
-                Aufgaben zur Station (kannst du beliebig oft wiederholen):
+                Dynamische Aufgaben (Zahlen ändern sich per Klick oben):
               </h2>
 
-              {currentStation.exercises.map((ex, exIdx) => {
+              {currentExercises.map((ex, exIdx) => {
                 const selectedOpt = stationAnswers[ex.id];
                 const isAnswered = selectedOpt !== undefined;
                 const isCorrect = isAnswered && selectedOpt === ex.correctIndex;
@@ -260,7 +276,7 @@ export default function App() {
                     {isAnswered && (
                       <div className={`feedback-box ${isCorrect ? 'correct' : 'incorrect'}`}>
                         <div style={{ fontWeight: 700, marginBottom: '4px' }}>
-                          {isCorrect ? '✓ Super, verstanden!' : '✗ Noch nicht ganz richtig.'}
+                          {isCorrect ? '✓ Super, richtig gerechnet!' : '✗ Noch nicht ganz richtig.'}
                         </div>
                         <div>{ex.explanation}</div>
                       </div>
@@ -269,16 +285,24 @@ export default function App() {
                 );
               })}
 
-              {/* Weiter zur nächsten Station */}
-              {selectedStationIndex < mathChapters.length - 1 && (
+              {/* Buttons unten */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px' }}>
                 <button
-                  className="calc-btn"
-                  onClick={() => setSelectedStationIndex(selectedStationIndex + 1)}
-                  style={{ marginTop: '16px' }}
+                  className="tab-btn"
+                  onClick={() => regenerateStation(selectedStationIndex)}
                 >
-                  Zur nächsten Station {selectedStationIndex + 2} weiter ➔
+                  🔄 Gleiche Station mit neuen Zahlen nochmal üben
                 </button>
-              )}
+
+                {selectedStationIndex < mathChapters.length - 1 && (
+                  <button
+                    className="calc-btn"
+                    onClick={() => setSelectedStationIndex(selectedStationIndex + 1)}
+                  >
+                    Zur nächsten Station {selectedStationIndex + 2} weiter ➔
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         )}
@@ -287,7 +311,7 @@ export default function App() {
         {activeTab === 'exam' && (
           <div>
             <div className="card">
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', flexWrap: 'wrap', gap: '8px' }}>
                 <h1 className="card-title">📝 Unendliche Probeklassenarbeit (Mathematik 9a)</h1>
                 <button className="calc-btn" onClick={startNewExam}>
                   🎲 Neue Arbeit mit neuen Zahlen generieren

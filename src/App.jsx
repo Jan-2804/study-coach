@@ -1,14 +1,32 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { mathChapters, englishChapters } from './data/curriculum';
 import { generateExam } from './data/examGenerator';
 import { generateDynamicStation } from './data/stationGenerator';
+import { getRank } from './data/gameEngine';
+import BossFight from './components/BossFight';
+import SurvivalMode from './components/SurvivalMode';
 import './index.css';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState('stations'); // 'stations' | 'exam' | 'calc' | 'english'
+  const [activeTab, setActiveTab] = useState('boss'); // 'boss' | 'survival' | 'stations' | 'exam' | 'calc' | 'english'
   const [selectedStationIndex, setSelectedStationIndex] = useState(0);
 
-  // Dynamische Aufgaben für die 5 Stationen (wechseln bei jedem Neu-Generieren!)
+  // XP und Level-System
+  const [xp, setXp] = useState(() => {
+    return parseInt(localStorage.getItem('study_coach_user_xp') || '0', 10);
+  });
+
+  const gainXp = (amount) => {
+    setXp(prev => {
+      const next = prev + amount;
+      localStorage.setItem('study_coach_user_xp', next.toString());
+      return next;
+    });
+  };
+
+  const userRank = getRank(xp);
+
+  // Dynamische Aufgaben für die 5 Stationen
   const [stationExercises, setStationExercises] = useState(() => ({
     0: generateDynamicStation(0),
     1: generateDynamicStation(1),
@@ -40,7 +58,6 @@ export default function App() {
       ...prev,
       [stationIdx]: generateDynamicStation(stationIdx)
     }));
-    // Antworten für diese Station zurücksetzen
     setStationAnswers(prev => {
       const next = { ...prev };
       const currentList = stationExercises[stationIdx] || [];
@@ -51,6 +68,7 @@ export default function App() {
 
   const handleSelectStationOption = (exId, optIdx) => {
     setStationAnswers(prev => ({ ...prev, [exId]: optIdx }));
+    gainXp(15); // XP für das Lösen einer Stationsaufgabe!
   };
 
   const calculatePythagoras = () => {
@@ -58,7 +76,6 @@ export default function App() {
     const b = parseFloat(sideB);
     const c = parseFloat(sideC);
 
-    // Fall 1: Hypotenuse c gesucht (a und b bekannt)
     if (a && b && !c) {
       const res = Math.sqrt(a * a + b * b);
       setCalcResult({
@@ -71,9 +88,7 @@ export default function App() {
           `Ergebnis: c ≈ ${res.toFixed(2)} cm (exakter Wurzelausdruck: √${a * a + b * b})`
         ]
       });
-    }
-    // Fall 2: Kathete a gesucht (c und b bekannt -> c WEISS ICH!)
-    else if (c && b && !a) {
+    } else if (c && b && !a) {
       if (b >= c) {
         setCalcResult({
           title: 'Fehler in den Angaben!',
@@ -93,9 +108,7 @@ export default function App() {
           `Ergebnis: a ≈ ${res.toFixed(2)} cm (exakt: √${c * c - b * b})`
         ]
       });
-    }
-    // Fall 3: Kathete b gesucht (c und a bekannt -> c WEISS ICH!)
-    else if (c && a && !b) {
+    } else if (c && a && !b) {
       if (a >= c) {
         setCalcResult({
           title: 'Fehler in den Angaben!',
@@ -115,9 +128,7 @@ export default function App() {
           `Ergebnis: b ≈ ${res.toFixed(2)} cm (exakt: √${c * c - a * a})`
         ]
       });
-    }
-    // Fall 4: Alle 3 bekannt -> Dreiecksart prüfen
-    else if (a && b && c) {
+    } else if (a && b && c) {
       const left = a * a + b * b;
       const right = c * c;
       const diff = Math.abs(left - right);
@@ -141,7 +152,7 @@ export default function App() {
     } else {
       setCalcResult({
         title: 'Eingabe unvollständig',
-        steps: ['Bitte gib entweder 2 Seiten ein (um die 3. mit Rechenweg auszurechnen) oder alle 3 Seiten (um die Art des Dreiecks zu prüfen)!']
+        steps: ['Bitte gib entweder 2 Seiten ein oder alle 3!']
       });
     }
   };
@@ -149,7 +160,6 @@ export default function App() {
   const currentStation = mathChapters[selectedStationIndex];
   const currentExercises = stationExercises[selectedStationIndex] || [];
 
-  // Score der Klassenarbeit
   let examScore = 0;
   if (examSubmitted) {
     examQuestions.forEach(q => {
@@ -159,34 +169,54 @@ export default function App() {
 
   return (
     <div>
-      {/* Header */}
+      {/* Header mit Rang- und XP-Anzeige */}
       <header className="app-header">
         <div className="header-inner">
-          <div className="app-title">Lern-Coach: Mathe & Englisch (Klasse 9)</div>
-          <nav className="tab-nav">
+          <div>
+            <div className="app-title">Lern-Coach & Spiel (Klasse 9)</div>
+            <div style={{ fontSize: '12px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '8px', marginTop: '2px' }}>
+              <span>{userRank.icon} <strong>{userRank.title}</strong></span>
+              <span>•</span>
+              <span style={{ color: 'var(--primary)', fontWeight: 600 }}>{xp} XP gesammelt</span>
+            </div>
+          </div>
+
+          <nav className="tab-nav" style={{ flexWrap: 'wrap' }}>
+            <button
+              className={`tab-btn ${activeTab === 'boss' ? 'active' : ''}`}
+              onClick={() => setActiveTab('boss')}
+            >
+              ⚔️ Boss-Fight Arena
+            </button>
+            <button
+              className={`tab-btn ${activeTab === 'survival' ? 'active' : ''}`}
+              onClick={() => setActiveTab('survival')}
+            >
+              🔥 Streak-Survival
+            </button>
             <button
               className={`tab-btn ${activeTab === 'stations' ? 'active' : ''}`}
               onClick={() => setActiveTab('stations')}
             >
-              🚩 Mathe Lernstationen (1 bis 5)
+              🚩 Lernstationen (1 bis 5)
             </button>
             <button
               className={`tab-btn ${activeTab === 'exam' ? 'active' : ''}`}
               onClick={() => setActiveTab('exam')}
             >
-              📝 Unendliche Probeklassenarbeit
+              📝 Probeklassenarbeit
             </button>
             <button
               className={`tab-btn ${activeTab === 'calc' ? 'active' : ''}`}
               onClick={() => setActiveTab('calc')}
             >
-              🔢 Pythagoras-Schritt-Rechner
+              🔢 Pythagoras-Rechner
             </button>
             <button
               className={`tab-btn ${activeTab === 'english' ? 'active' : ''}`}
               onClick={() => setActiveTab('english')}
             >
-              🇬🇧 Englisch (Freitag)
+              🇬🇧 Englisch
             </button>
           </nav>
         </div>
@@ -194,11 +224,20 @@ export default function App() {
 
       {/* Hauptinhalt */}
       <main className="container">
-        
-        {/* ===================== TAB 1: LERNSTATIONEN ===================== */}
+
+        {/* ===================== TAB: BOSS FIGHT ===================== */}
+        {activeTab === 'boss' && (
+          <BossFight xp={xp} onGainXp={gainXp} />
+        )}
+
+        {/* ===================== TAB: SURVIVAL ===================== */}
+        {activeTab === 'survival' && (
+          <SurvivalMode onGainXp={gainXp} />
+        )}
+
+        {/* ===================== TAB: LERNSTATIONEN ===================== */}
         {activeTab === 'stations' && (
           <div>
-            {/* Stations-Leiste */}
             <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '12px', marginBottom: '16px' }}>
               {mathChapters.map((station, idx) => (
                 <button
@@ -220,19 +259,17 @@ export default function App() {
                   onClick={() => regenerateStation(selectedStationIndex)}
                   style={{ fontSize: '13px', padding: '8px 12px' }}
                 >
-                  🎲 Neue Zahlen für diese Station generieren
+                  🎲 Neue Zahlen für diese Station
                 </button>
               </div>
               <p className="card-desc">{currentStation.description}</p>
 
-              {/* Erklärung von Null auf */}
               <div className="theory-box">
                 {currentStation.summary}
               </div>
 
-              {/* Dynamische Aufgaben */}
               <h2 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '12px', marginTop: '24px' }}>
-                Dynamische Aufgaben (Zahlen ändern sich per Klick oben):
+                Dynamische Aufgaben (Jede richtige Antwort gibt +15 XP!):
               </h2>
 
               {currentExercises.map((ex, exIdx) => {
@@ -251,11 +288,8 @@ export default function App() {
                       {ex.options.map((opt, optIdx) => {
                         let btnClass = 'option-btn';
                         if (isAnswered) {
-                          if (optIdx === ex.correctIndex) {
-                            btnClass += ' correct';
-                          } else if (optIdx === selectedOpt) {
-                            btnClass += ' incorrect';
-                          }
+                          if (optIdx === ex.correctIndex) btnClass += ' correct';
+                          else if (optIdx === selectedOpt) btnClass += ' incorrect';
                         } else if (selectedOpt === optIdx) {
                           btnClass += ' selected';
                         }
@@ -276,7 +310,7 @@ export default function App() {
                     {isAnswered && (
                       <div className={`feedback-box ${isCorrect ? 'correct' : 'incorrect'}`}>
                         <div style={{ fontWeight: 700, marginBottom: '4px' }}>
-                          {isCorrect ? '✓ Super, richtig gerechnet!' : '✗ Noch nicht ganz richtig.'}
+                          {isCorrect ? '✓ Super, richtig gerechnet! (+15 XP)' : '✗ Noch nicht ganz richtig.'}
                         </div>
                         <div>{ex.explanation}</div>
                       </div>
@@ -285,21 +319,14 @@ export default function App() {
                 );
               })}
 
-              {/* Buttons unten */}
               <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px' }}>
-                <button
-                  className="tab-btn"
-                  onClick={() => regenerateStation(selectedStationIndex)}
-                >
-                  🔄 Gleiche Station mit neuen Zahlen nochmal üben
+                <button className="tab-btn" onClick={() => regenerateStation(selectedStationIndex)}>
+                  🔄 Gleiche Station mit neuen Zahlen nochmal
                 </button>
 
                 {selectedStationIndex < mathChapters.length - 1 && (
-                  <button
-                    className="calc-btn"
-                    onClick={() => setSelectedStationIndex(selectedStationIndex + 1)}
-                  >
-                    Zur nächsten Station {selectedStationIndex + 2} weiter ➔
+                  <button className="calc-btn" onClick={() => setSelectedStationIndex(selectedStationIndex + 1)}>
+                    Zur nächsten Station weiter ➔
                   </button>
                 )}
               </div>
@@ -307,124 +334,113 @@ export default function App() {
           </div>
         )}
 
-        {/* ===================== TAB 2: PROBEKLASSENARBEIT ===================== */}
+        {/* ===================== TAB: PROBEKLASSENARBEIT ===================== */}
         {activeTab === 'exam' && (
-          <div>
-            <div className="card">
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', flexWrap: 'wrap', gap: '8px' }}>
-                <h1 className="card-title">📝 Unendliche Probeklassenarbeit (Mathematik 9a)</h1>
-                <button className="calc-btn" onClick={startNewExam}>
-                  🎲 Neue Arbeit mit neuen Zahlen generieren
-                </button>
-              </div>
-              <p className="card-desc">
-                Diese Arbeit deckt genau den Stoff vom Mittwoch ab (Pythagoras, Umkehrung, Sachaufgaben wie Leiter & Schrank, Wurzel-Gesetze und Nenner rational machen).
-                Jedes Mal, wenn du auf <strong>"Neue Arbeit generieren"</strong> klickst, werden völlig neue Zahlen und Aufgaben berechnet!
-              </p>
-
-              {examSubmitted && (
-                <div style={{
-                  padding: '16px',
-                  backgroundColor: examScore >= 6 ? 'var(--success-bg)' : 'var(--error-bg)',
-                  border: `2px solid ${examScore >= 6 ? 'var(--success)' : 'var(--error)'}`,
-                  borderRadius: '8px',
-                  marginBottom: '20px'
-                }}>
-                  <div style={{ fontSize: '18px', fontWeight: 700, color: examScore >= 6 ? 'var(--success)' : 'var(--error)' }}>
-                    Ergebnis: {examScore} von {examQuestions.length} Punkten richtig!
-                  </div>
-                  <div style={{ fontSize: '14px', marginTop: '4px' }}>
-                    {examScore === examQuestions.length && 'Perfekt! Du bist zu 100% fit für Mittwoch!'}
-                    {examScore >= 6 && examScore < examQuestions.length && 'Sehr gut! Schau dir unten noch die paar rot markierten Rechenschritte an.'}
-                    {examScore < 6 && 'Noch etwas wackelig. Lies dir bei den roten Aufgaben genau die Schritt-für-Schritt-Lösung durch und klicke dann auf "Neue Arbeit generieren", um es nochmal zu versuchen!'}
-                  </div>
-                </div>
-              )}
-
-              {/* Aufgabenliste */}
-              {examQuestions.map((q, qIdx) => {
-                const userAns = examAnswers[q.id];
-                const isCorrect = userAns === q.correctAnswer;
-
-                return (
-                  <div key={q.id} className="exercise-box">
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: 'var(--text-muted)', marginBottom: '4px' }}>
-                      <span>{q.title}</span>
-                      <span>Kategorie: {q.category}</span>
-                    </div>
-                    <div className="question-text">{q.question}</div>
-
-                    <div className="options-list">
-                      {q.options.map((opt, oIdx) => {
-                        let btnClass = 'option-btn';
-                        if (examSubmitted) {
-                          if (opt === q.correctAnswer) {
-                            btnClass += ' correct';
-                          } else if (opt === userAns) {
-                            btnClass += ' incorrect';
-                          }
-                        } else if (userAns === opt) {
-                          btnClass += ' selected';
-                        }
-
-                        return (
-                          <button
-                            key={oIdx}
-                            className={btnClass}
-                            onClick={() => !examSubmitted && setExamAnswers(prev => ({ ...prev, [q.id]: opt }))}
-                            disabled={examSubmitted}
-                          >
-                            {opt}
-                          </button>
-                        );
-                      })}
-                    </div>
-
-                    {/* Nach Abgabe: Vollständige Schritt-für-Schritt Lösung */}
-                    {examSubmitted && (
-                      <div className={`feedback-box ${isCorrect ? 'correct' : 'incorrect'}`}>
-                        <div style={{ fontWeight: 700, marginBottom: '6px' }}>
-                          {isCorrect ? '✓ Richtig!' : `✗ Falsch. Richtig ist: ${q.correctAnswer}`}
-                        </div>
-                        <div style={{ fontWeight: 600, fontSize: '13px', marginBottom: '4px' }}>Ausführlicher Rechenweg:</div>
-                        <ul style={{ paddingLeft: '20px', fontSize: '13px', lineHeight: '1.6' }}>
-                          {q.steps.map((st, sIdx) => (
-                            <li key={sIdx}>{st}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-
-              {!examSubmitted ? (
-                <button
-                  className="calc-btn"
-                  onClick={() => setExamSubmitted(true)}
-                  style={{ width: '100%', padding: '14px', fontSize: '16px', marginTop: '12px' }}
-                >
-                  Klassenarbeit jetzt abgeben & Auswertung ansehen
-                </button>
-              ) : (
-                <button
-                  className="calc-btn"
-                  onClick={startNewExam}
-                  style={{ width: '100%', padding: '14px', fontSize: '16px', marginTop: '12px' }}
-                >
-                  🔄 Neue Klassenarbeit mit frischen Zahlen starten
-                </button>
-              )}
+          <div className="card">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', flexWrap: 'wrap', gap: '8px' }}>
+              <h1 className="card-title">📝 Unendliche Probeklassenarbeit</h1>
+              <button className="calc-btn" onClick={startNewExam}>
+                🎲 Neue Arbeit mit neuen Zahlen
+              </button>
             </div>
+            <p className="card-desc">
+              8 Aufgaben aus dem Stoff vom Mittwoch. Nach Abgabe siehst du sofort alle detaillierten Schritte.
+            </p>
+
+            {examSubmitted && (
+              <div style={{
+                padding: '16px',
+                backgroundColor: examScore >= 6 ? 'var(--success-bg)' : 'var(--error-bg)',
+                border: `2px solid ${examScore >= 6 ? 'var(--success)' : 'var(--error)'}`,
+                borderRadius: '8px',
+                marginBottom: '20px'
+              }}>
+                <div style={{ fontSize: '18px', fontWeight: 700, color: examScore >= 6 ? 'var(--success)' : 'var(--error)' }}>
+                  Ergebnis: {examScore} von {examQuestions.length} Punkten!
+                </div>
+              </div>
+            )}
+
+            {examQuestions.map((q) => {
+              const userAns = examAnswers[q.id];
+              const isCorrect = userAns === q.correctAnswer;
+
+              return (
+                <div key={q.id} className="exercise-box">
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: 'var(--text-muted)', marginBottom: '4px' }}>
+                    <span>{q.title}</span>
+                    <span>{q.category}</span>
+                  </div>
+                  <div className="question-text">{q.question}</div>
+
+                  <div className="options-list">
+                    {q.options.map((opt, oIdx) => {
+                      let btnClass = 'option-btn';
+                      if (examSubmitted) {
+                        if (opt === q.correctAnswer) btnClass += ' correct';
+                        else if (opt === userAns) btnClass += ' incorrect';
+                      } else if (userAns === opt) {
+                        btnClass += ' selected';
+                      }
+
+                      return (
+                        <button
+                          key={oIdx}
+                          className={btnClass}
+                          onClick={() => !examSubmitted && setExamAnswers(prev => ({ ...prev, [q.id]: opt }))}
+                          disabled={examSubmitted}
+                        >
+                          {opt}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {examSubmitted && (
+                    <div className={`feedback-box ${isCorrect ? 'correct' : 'incorrect'}`}>
+                      <div style={{ fontWeight: 700, marginBottom: '6px' }}>
+                        {isCorrect ? '✓ Richtig!' : `✗ Richtig ist: ${q.correctAnswer}`}
+                      </div>
+                      <ul style={{ paddingLeft: '20px', fontSize: '13px', lineHeight: '1.6' }}>
+                        {q.steps.map((st, sIdx) => <li key={sIdx}>{st}</li>)}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+
+            {!examSubmitted ? (
+              <button
+                className="calc-btn"
+                onClick={() => {
+                  setExamSubmitted(true);
+                  let sc = 0;
+                  examQuestions.forEach(q => { if (examAnswers[q.id] === q.correctAnswer) sc++; });
+                  gainXp(sc * 20);
+                }}
+                style={{ width: '100%', padding: '14px', fontSize: '16px', marginTop: '12px' }}
+              >
+                Klassenarbeit abgeben & Auswertung ansehen
+              </button>
+            ) : (
+              <button
+                className="calc-btn"
+                onClick={startNewExam}
+                style={{ width: '100%', padding: '14px', fontSize: '16px', marginTop: '12px' }}
+              >
+                🔄 Neue Klassenarbeit starten
+              </button>
+            )}
           </div>
         )}
 
-        {/* ===================== TAB 3: PYTHAGORAS RECHNER ===================== */}
+        {/* ===================== TAB: RECHNER ===================== */}
         {activeTab === 'calc' && (
           <div className="card">
-            <h1 className="card-title">🔢 Pythagoras-Schritt-Rechner (Auch wenn du c schon weißt!)</h1>
+            <h1 className="card-title">🔢 Pythagoras-Schritt-Rechner (mit c)</h1>
             <p className="card-desc">
-              Gib genau <strong>zwei Seiten ein</strong> und lass die dritte frei. Der Rechner zeigt dir jeden Einzelschritt mit Formel und Wurzel an!
+              Gib genau 2 Seiten ein, die 3. wird mit allen Einzelschritten berechnet.
             </p>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px', marginTop: '16px' }}>
@@ -471,7 +487,7 @@ export default function App() {
                 className="tab-btn"
                 onClick={() => { setSideA(''); setSideB(''); setSideC(''); setCalcResult(null); }}
               >
-                Felder leeren
+                Leeren
               </button>
             </div>
 
@@ -486,21 +502,19 @@ export default function App() {
                 <div style={{ fontWeight: 700, fontSize: '16px', color: 'var(--primary)', marginBottom: '8px' }}>
                   {calcResult.title}
                 </div>
-                <ul style={{ paddingLeft: '20px', lineHeight: '1.8', fontSize: '14px', color: 'var(--text-main)' }}>
-                  {calcResult.steps.map((st, idx) => (
-                    <li key={idx}><strong>{st}</strong></li>
-                  ))}
+                <ul style={{ paddingLeft: '20px', lineHeight: '1.8', fontSize: '14px' }}>
+                  {calcResult.steps.map((st, idx) => <li key={idx}><strong>{st}</strong></li>)}
                 </ul>
               </div>
             )}
           </div>
         )}
 
-        {/* ===================== TAB 4: ENGLISCH ===================== */}
+        {/* ===================== TAB: ENGLISCH ===================== */}
         {activeTab === 'english' && (
           <div className="card">
-            <h1 className="card-title">🇬🇧 Englisch – Grammatik & Zeitformen (Freitag)</h1>
-            <p className="card-desc">Die wichtigsten Regeln verständlich auf den Punkt gebracht.</p>
+            <h1 className="card-title">🇬🇧 Englisch – Vorbereitung Freitag</h1>
+            <p className="card-desc">Zeitformen, Signalwörter und If-Sätze.</p>
 
             {englishChapters.map(chap => (
               <div key={chap.id} style={{ marginBottom: '28px' }}>
@@ -516,7 +530,10 @@ export default function App() {
                         <button
                           key={oIdx}
                           className={`option-btn ${stationAnswers[ex.id] === oIdx ? (oIdx === ex.correctIndex ? 'correct' : 'incorrect') : ''}`}
-                          onClick={() => setStationAnswers(prev => ({ ...prev, [ex.id]: oIdx }))}
+                          onClick={() => {
+                            setStationAnswers(prev => ({ ...prev, [ex.id]: oIdx }));
+                            if (oIdx === ex.correctIndex) gainXp(15);
+                          }}
                         >
                           {opt}
                         </button>

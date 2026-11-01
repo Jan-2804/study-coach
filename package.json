@@ -1,22 +1,52 @@
 {
   "name": "study-coach",
   "version": "1.0.0",
-  "description": "Lernapp fuer Mathe und Englisch Klasse 9",
+  "description": "Lernapp & Mathe-Game fuer Klasse 9",
+  "main": "electron/main.cjs",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "electron:dev": "vite build && electron .",
+    "dist:win": "vite build && electron-builder --win nsis --x64"
+  },
+  "build": {
+    "appId": "com.jan2804.studycoach",
+    "productName": "Klassenarbeits-Coach",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*"
+    ],
+    "win": {
+      "target": "nsis"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": false
+    }
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Jan-2804/study-coach.git"
   },
   "dependencies": {
+    "@capacitor/android": "^7.0.1",
+    "@capacitor/cli": "^7.0.1",
+    "@capacitor/core": "^7.0.1",
     "@vitejs/plugin-react": "^4.3.4",
+    "canvas-confetti": "^1.9.4",
     "lucide-react": "^1.16.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "vite": "^6.2.0"
+  },
+  "devDependencies": {
+    "electron": "^35.0.0",
+    "electron-builder": "^25.1.8"
   }
 }

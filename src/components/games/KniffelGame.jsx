@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import confetti from 'canvas-confetti';
 
 const DICE_CHARS = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
 
@@ -23,19 +22,18 @@ const LOWER_CATEGORIES = [
 ];
 
 export default function KniffelGame({ onGainXp }) {
-  // Spieler: Du ('player') und Computergegner ('bot')
   const [dice, setDice] = useState([1, 1, 1, 1, 1]);
   const [kept, setKept] = useState([false, false, false, false, false]);
   const [rollsLeft, setRollsLeft] = useState(3);
   const [round, setRound] = useState(1);
-  const [currentTurn, setCurrentTurn] = useState('player'); // 'player' | 'bot'
+  const [currentTurn, setCurrentTurn] = useState('player');
 
-  // Punktekarten
   const [playerScores, setPlayerScores] = useState({});
   const [botScores, setBotScores] = useState({});
+  const [message, setMessage] = useState('Würfle und trage ein. Vor jedem Eintrag musst du eine Klassenarbeits-Aufgabe lösen!');
 
-  const [message, setMessage] = useState('Würfle und wähle die besten Würfel zum Behalten!');
-  const [mathBonusModal, setMathBonusModal] = useState(null); // Mathe-Aufgabe für Extra-Punkte!
+  // Pflicht-Matheaufgabe zum Freischalten des Eintrags!
+  const [mathModal, setMathModal] = useState(null);
 
   const rollDice = () => {
     if (rollsLeft <= 0 || currentTurn !== 'player') return;
@@ -46,7 +44,7 @@ export default function KniffelGame({ onGainXp }) {
 
     setDice(newDice);
     setRollsLeft(prev => prev - 1);
-    setMessage(`Verbleibende Würfe: ${rollsLeft - 1}. Klicke auf Würfel, um sie zu behalten.`);
+    setMessage(`Würfe übrig: ${rollsLeft - 1}. Wähle Würfel zum Behalten.`);
   };
 
   const toggleKeep = (index) => {
@@ -58,7 +56,6 @@ export default function KniffelGame({ onGainXp }) {
     });
   };
 
-  // Punkteberechnung
   const calculateScore = (catId, currentDice) => {
     const counts = {};
     let sum = 0;
@@ -67,93 +64,88 @@ export default function KniffelGame({ onGainXp }) {
       sum += d;
     });
 
-    // Oben
     const upper = UPPER_CATEGORIES.find(u => u.id === catId);
-    if (upper) {
-      return (counts[upper.num] || 0) * upper.num;
-    }
+    if (upper) return (counts[upper.num] || 0) * upper.num;
 
-    // Unten
-    if (catId === 'threeOfAKind') {
-      const hasThree = Object.values(counts).some(c => c >= 3);
-      return hasThree ? sum : 0;
-    }
-    if (catId === 'fourOfAKind') {
-      const hasFour = Object.values(counts).some(c => c >= 4);
-      return hasFour ? sum : 0;
-    }
+    if (catId === 'threeOfAKind') return Object.values(counts).some(c => c >= 3) ? sum : 0;
+    if (catId === 'fourOfAKind') return Object.values(counts).some(c => c >= 4) ? sum : 0;
     if (catId === 'fullHouse') {
       const vals = Object.values(counts);
-      const isFH = (vals.includes(3) && vals.includes(2)) || vals.includes(5);
-      return isFH ? 25 : 0;
+      return ((vals.includes(3) && vals.includes(2)) || vals.includes(5)) ? 25 : 0;
     }
     if (catId === 'smallStraight') {
       const unique = [...new Set(currentDice)].sort().join('');
-      const isSS = unique.includes('1234') || unique.includes('2345') || unique.includes('3456');
-      return isSS ? 30 : 0;
+      return (unique.includes('1234') || unique.includes('2345') || unique.includes('3456')) ? 30 : 0;
     }
     if (catId === 'largeStraight') {
       const unique = [...new Set(currentDice)].sort().join('');
-      const isLS = unique === '12345' || unique === '23456';
-      return isLS ? 40 : 0;
+      return (unique === '12345' || unique === '23456') ? 40 : 0;
     }
-    if (catId === 'yahtzee') {
-      const isY = Object.values(counts).some(c => c === 5);
-      return isY ? 50 : 0;
-    }
-    if (catId === 'chance') {
-      return sum;
-    }
+    if (catId === 'yahtzee') return Object.values(counts).some(c => c === 5) ? 50 : 0;
+    if (catId === 'chance') return sum;
     return 0;
   };
 
-  // Spieler trägt Feld ein
+  // Klick auf Scorecard öffnet PFLICHT-Matheaufgabe
   const chooseCategory = (catId) => {
     if (rollsLeft === 3 || currentTurn !== 'player' || playerScores[catId] !== undefined) return;
 
     const baseScore = calculateScore(catId, dice);
 
-    // Mathe-Bonus-Herausforderung!
-    const a = Math.floor(Math.random() * 4) + 3;
-    const b = Math.floor(Math.random() * 4) + 3;
-    const hyp = Math.sqrt(a * a + b * b).toFixed(1);
+    // Echte Klassenarbeitsaufgabe generieren (Pythagoras oder Wurzel)
+    const taskTypes = ['pyth', 'root'];
+    const chosen = taskTypes[Math.floor(Math.random() * taskTypes.length)];
+    let questionText, correctAns, optList, expl;
 
-    setMathBonusModal({
+    if (chosen === 'pyth') {
+      const trips = [[3, 4, 5], [6, 8, 10], [5, 12, 13]];
+      const [a, b, c] = trips[Math.floor(Math.random() * trips.length)];
+      questionText = `Um dein Feld einzutragen: Berechne Kathete a, wenn Hypotenuse c = ${c} cm und Kathete b = ${b} cm ist:`;
+      correctAns = `${a} cm`;
+      optList = [`${a} cm`, `${c - b} cm`, `${a + 2} cm`, `${c + 1} cm`].sort(() => Math.random() - 0.5);
+      expl = `a² = ${c}² - ${b}² = ${c*c} - ${b*b} = ${a*a} -> a = ${a} cm`;
+    } else {
+      const num1 = Math.floor(Math.random() * 5) + 2;
+      const num2 = Math.floor(Math.random() * 5) + 2;
+      questionText = `Um dein Feld einzutragen: Fasse zusammen: ${num1}√2 + ${num2}√2`;
+      correctAns = `${num1 + num2}√2`;
+      optList = [`${num1 + num2}√2`, `${num1 + num2}√4`, `${num1 * num2}√2`, `Geht nicht`].sort(() => Math.random() - 0.5);
+      expl = `Wie bei Variablen: (${num1} + ${num2})√2 = ${num1 + num2}√2`;
+    }
+
+    setMathModal({
       catId,
       baseScore,
-      question: `Mathe-Bonus: Ein rechtwinkliges Dreieck hat Katheten ${a} und ${b}. Wie lang ist die Hypotenuse c?`,
-      options: [
-        `${hyp}`,
-        `${(parseFloat(hyp) + 1.2).toFixed(1)}`,
-        `${a + b}`,
-        `${(parseFloat(hyp) - 1.0).toFixed(1)}`
-      ].sort(() => Math.random() - 0.5),
-      correct: `${hyp}`
+      question: questionText,
+      options: optList,
+      correct: correctAns,
+      explanation: expl
     });
   };
 
-  const finishTurnWithBonus = (selectedAnswer) => {
-    const { catId, baseScore, correct } = mathBonusModal;
+  const handleMathAnswer = (selectedOpt) => {
+    const { catId, baseScore, correct, explanation } = mathModal;
+    const isCorrect = selectedOpt === correct;
+
     let finalScore = baseScore;
-    if (selectedAnswer === correct) {
-      finalScore += 5; // +5 Bonus-Punkte für richtige Rechnung!
-      onGainXp(20);
-      setMessage(`✓ Mathe-Bonus gelöst! +5 Extra-Punkte erhalten!`);
+    if (isCorrect) {
+      finalScore += 5; // Bonus +5 Punkte!
+      onGainXp(30);
+      setMessage(`✓ Aufgabe gelöst! Volle Punkte + 5 Bonus-Punkte eingetragen!`);
     } else {
-      setMessage(`Falsche Rechnung! Basis-Punkte eingetragen.`);
+      finalScore = Math.max(0, Math.floor(baseScore / 2)); // Punktabzug bei falscher Rechnung!
+      setMessage(`❌ Rechenfehler! Nur halbe Punkte erhalten. Erklärung: ${explanation}`);
     }
 
     setPlayerScores(prev => ({ ...prev, [catId]: finalScore }));
-    setMathBonusModal(null);
+    setMathModal(null);
 
-    // Jetzt Bot-Zug vorbereiten
+    // Bot ist dran
     setCurrentTurn('bot');
-    setTimeout(() => runBotTurn(), 1000);
+    setTimeout(() => runBotTurn(), 900);
   };
 
-  // Computer-Gegner zieht
   const runBotTurn = () => {
-    // Bot würfelt 3 mal
     const botDice = [
       Math.floor(Math.random() * 6) + 1,
       Math.floor(Math.random() * 6) + 1,
@@ -162,12 +154,10 @@ export default function KniffelGame({ onGainXp }) {
       Math.floor(Math.random() * 6) + 1
     ];
 
-    // Freie Kategorie suchen
     const allCats = [...UPPER_CATEGORIES.map(u => u.id), ...LOWER_CATEGORIES.map(l => l.id)];
     const openCats = allCats.filter(c => botScores[c] === undefined);
 
     if (openCats.length > 0) {
-      // Besten Score suchen
       let bestCat = openCats[0];
       let maxScore = -1;
       openCats.forEach(c => {
@@ -177,12 +167,10 @@ export default function KniffelGame({ onGainXp }) {
           bestCat = c;
         }
       });
-
       setBotScores(prev => ({ ...prev, [bestCat]: maxScore }));
-      setMessage(`Computerspieler 1 hat ${maxScore} Punkte in ${bestCat} eingetragen!`);
+      setMessage(`Bot hat ${maxScore} Punkte eingetragen. Du bist dran!`);
     }
 
-    // Nächste Runde für Spieler
     setRound(r => r + 1);
     setRollsLeft(3);
     setKept([false, false, false, false, false]);
@@ -190,7 +178,6 @@ export default function KniffelGame({ onGainXp }) {
     setCurrentTurn('player');
   };
 
-  // Summen berechnen
   const getTotals = (scores) => {
     let upperSum = 0;
     UPPER_CATEGORIES.forEach(u => { upperSum += (scores[u.id] || 0); });
@@ -205,37 +192,23 @@ export default function KniffelGame({ onGainXp }) {
 
   return (
     <div style={{
-      backgroundColor: '#3b2514', // Authentischer Holztisch wie im Steam-Spiel
+      backgroundColor: '#3b2514',
       borderRadius: '12px',
-      padding: '24px',
+      padding: '16px',
       color: '#ffffff',
       display: 'grid',
-      gridTemplateColumns: 'minmax(320px, 380px) 1fr',
-      gap: '24px',
-      boxShadow: '0 8px 24px rgba(0,0,0,0.4)',
-      minHeight: '620px'
+      gridTemplateColumns: 'minmax(280px, 340px) 1fr',
+      gap: '16px',
+      minHeight: '600px'
     }}>
-      {/* Linke Spalte: Authentische Kniffel-Scorecard (wie auf deinem Screenshot!) */}
-      <div style={{
-        backgroundColor: '#f8fafc',
-        color: '#0f172a',
-        borderRadius: '16px',
-        padding: '16px',
-        boxShadow: '0 4px 16px rgba(0,0,0,0.5)',
-        fontSize: '13px',
-        fontFamily: 'sans-serif'
-      }}>
-        {/* Header der Karte */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', borderBottom: '2px solid #cbd5e1', paddingBottom: '8px' }}>
-          <div style={{ fontWeight: 800, fontSize: '15px' }}>Runde {round} / 13</div>
-          <div style={{ display: 'flex', gap: '16px', fontWeight: 700 }}>
-            <span style={{ color: '#2563eb' }}>👶 Du ({pTotals.total})</span>
-            <span style={{ color: '#ea580c' }}>🤖 Bot ({bTotals.total})</span>
-          </div>
+      {/* Scorecard */}
+      <div style={{ backgroundColor: '#f8fafc', color: '#0f172a', borderRadius: '12px', padding: '12px', fontSize: '12px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', borderBottom: '2px solid #cbd5e1', paddingBottom: '4px', fontWeight: 800 }}>
+          <span>Runde {round} / 13</span>
+          <span>👶 Du: {pTotals.total} | 🤖 Bot: {bTotals.total}</span>
         </div>
 
-        {/* Oberer Teil */}
-        <div style={{ border: '1px solid #cbd5e1', borderRadius: '8px', overflow: 'hidden', marginBottom: '12px' }}>
+        <div style={{ border: '1px solid #cbd5e1', borderRadius: '6px', overflow: 'hidden', marginBottom: '8px' }}>
           {UPPER_CATEGORIES.map(cat => {
             const isFilled = playerScores[cat.id] !== undefined;
             const preview = calculateScore(cat.id, dice);
@@ -245,38 +218,22 @@ export default function KniffelGame({ onGainXp }) {
                 onClick={() => chooseCategory(cat.id)}
                 style={{
                   display: 'grid',
-                  gridTemplateColumns: '1fr 50px 50px',
-                  padding: '6px 10px',
+                  gridTemplateColumns: '1fr 45px 45px',
+                  padding: '5px 8px',
                   borderBottom: '1px solid #e2e8f0',
                   backgroundColor: !isFilled && rollsLeft < 3 ? '#fef3c7' : 'transparent',
-                  cursor: !isFilled && rollsLeft < 3 ? 'pointer' : 'default',
-                  alignItems: 'center'
+                  cursor: !isFilled && rollsLeft < 3 ? 'pointer' : 'default'
                 }}
               >
                 <span>{cat.name}</span>
-                <span style={{ fontWeight: 700, textAlign: 'center', backgroundColor: isFilled ? '#fed7aa' : 'transparent', borderRadius: '4px' }}>
-                  {isFilled ? playerScores[cat.id] : (rollsLeft < 3 ? preview : '-')}
-                </span>
-                <span style={{ textAlign: 'center', color: '#64748b' }}>
-                  {botScores[cat.id] !== undefined ? botScores[cat.id] : '-'}
-                </span>
+                <span style={{ fontWeight: 700, textAlign: 'center' }}>{isFilled ? playerScores[cat.id] : (rollsLeft < 3 ? preview : '-')}</span>
+                <span style={{ textAlign: 'center', color: '#64748b' }}>{botScores[cat.id] !== undefined ? botScores[cat.id] : '-'}</span>
               </div>
             );
           })}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 50px 50px', padding: '6px 10px', backgroundColor: '#334155', color: '#ffffff', fontWeight: 700 }}>
-            <span>Zwischensumme</span>
-            <span style={{ textAlign: 'center' }}>{pTotals.upperSum}</span>
-            <span style={{ textAlign: 'center' }}>{bTotals.upperSum}</span>
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 50px 50px', padding: '6px 10px', backgroundColor: '#475569', color: '#ffffff', fontWeight: 700 }}>
-            <span>Bonus (ab 63: +35)</span>
-            <span style={{ textAlign: 'center' }}>{pTotals.bonus}</span>
-            <span style={{ textAlign: 'center' }}>{bTotals.bonus}</span>
-          </div>
         </div>
 
-        {/* Unterer Teil */}
-        <div style={{ border: '1px solid #cbd5e1', borderRadius: '8px', overflow: 'hidden' }}>
+        <div style={{ border: '1px solid #cbd5e1', borderRadius: '6px', overflow: 'hidden' }}>
           {LOWER_CATEGORIES.map(cat => {
             const isFilled = playerScores[cat.id] !== undefined;
             const preview = calculateScore(cat.id, dice);
@@ -286,156 +243,107 @@ export default function KniffelGame({ onGainXp }) {
                 onClick={() => chooseCategory(cat.id)}
                 style={{
                   display: 'grid',
-                  gridTemplateColumns: '1fr 50px 50px',
-                  padding: '6px 10px',
+                  gridTemplateColumns: '1fr 45px 45px',
+                  padding: '5px 8px',
                   borderBottom: '1px solid #e2e8f0',
                   backgroundColor: !isFilled && rollsLeft < 3 ? '#fef3c7' : 'transparent',
-                  cursor: !isFilled && rollsLeft < 3 ? 'pointer' : 'default',
-                  alignItems: 'center'
+                  cursor: !isFilled && rollsLeft < 3 ? 'pointer' : 'default'
                 }}
               >
                 <span>{cat.name}</span>
-                <span style={{ fontWeight: 700, textAlign: 'center', backgroundColor: isFilled ? '#fed7aa' : 'transparent', borderRadius: '4px' }}>
-                  {isFilled ? playerScores[cat.id] : (rollsLeft < 3 ? preview : '-')}
-                </span>
-                <span style={{ textAlign: 'center', color: '#64748b' }}>
-                  {botScores[cat.id] !== undefined ? botScores[cat.id] : '-'}
-                </span>
+                <span style={{ fontWeight: 700, textAlign: 'center' }}>{isFilled ? playerScores[cat.id] : (rollsLeft < 3 ? preview : '-')}</span>
+                <span style={{ textAlign: 'center', color: '#64748b' }}>{botScores[cat.id] !== undefined ? botScores[cat.id] : '-'}</span>
               </div>
             );
           })}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 50px 50px', padding: '8px 10px', backgroundColor: '#0f172a', color: '#f59e0b', fontWeight: 900, fontSize: '14px' }}>
-            <span>ENDSUMME</span>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 45px 45px', padding: '6px 8px', backgroundColor: '#0f172a', color: '#f59e0b', fontWeight: 800 }}>
+            <span>GESAMT</span>
             <span style={{ textAlign: 'center' }}>{pTotals.total}</span>
             <span style={{ textAlign: 'center' }}>{bTotals.total}</span>
           </div>
         </div>
       </div>
 
-      {/* Rechte Spalte: Würfelteller & Würfelbecher (Grüner Samt-Teller wie im Screenshot!) */}
+      {/* Teller & Würfel */}
       <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
         <div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-            <div style={{ fontWeight: 800, fontSize: '22px' }}>🎲 KNIFFEL (STEAM-LOOK)</div>
-            <div style={{ backgroundColor: 'rgba(0,0,0,0.6)', padding: '6px 14px', borderRadius: '20px', fontWeight: 700 }}>
-              Verbleibende Würfe: {rollsLeft}
-            </div>
-          </div>
-
-          <div style={{ backgroundColor: 'rgba(0,0,0,0.5)', padding: '10px 14px', borderRadius: '8px', marginBottom: '20px' }}>
+          <div style={{ fontWeight: 800, fontSize: '18px', marginBottom: '8px' }}>🎲 KNIFFEL MIT MATHE-PFLICHT</div>
+          <div style={{ backgroundColor: 'rgba(0,0,0,0.5)', padding: '8px 12px', borderRadius: '6px', marginBottom: '14px', fontSize: '12px' }}>
             {message}
           </div>
 
-          {/* Der grüne Filz-Würfelteller */}
           <div style={{
-            width: '280px',
-            height: '280px',
+            width: '240px',
+            height: '240px',
             backgroundColor: '#15803d',
             borderRadius: '50%',
-            border: '12px solid #1c1917',
+            border: '8px solid #1c1917',
             margin: '0 auto',
             display: 'flex',
             flexWrap: 'wrap',
             justifyContent: 'center',
             alignItems: 'center',
-            gap: '14px',
-            padding: '24px',
-            boxShadow: 'inset 0 0 20px rgba(0,0,0,0.6), 0 8px 16px rgba(0,0,0,0.4)'
+            gap: '10px',
+            padding: '16px'
           }}>
             {dice.map((val, idx) => (
               <div
                 key={idx}
                 onClick={() => toggleKeep(idx)}
                 style={{
-                  width: '54px',
-                  height: '54px',
+                  width: '46px',
+                  height: '46px',
                   backgroundColor: '#ffffff',
                   color: '#0f172a',
-                  borderRadius: '10px',
+                  borderRadius: '8px',
                   display: 'flex',
                   justifyContent: 'center',
                   alignItems: 'center',
-                  fontSize: '42px',
+                  fontSize: '34px',
                   cursor: 'pointer',
-                  border: kept[idx] ? '4px solid #f59e0b' : '2px solid #cbd5e1',
-                  transform: kept[idx] ? 'scale(1.12)' : 'none',
-                  boxShadow: '0 4px 8px rgba(0,0,0,0.3)',
-                  transition: 'all 0.15s ease'
+                  border: kept[idx] ? '3px solid #f59e0b' : '1px solid #cbd5e1',
+                  transform: kept[idx] ? 'scale(1.1)' : 'none'
                 }}
               >
                 {DICE_CHARS[val - 1]}
               </div>
             ))}
           </div>
-
-          <div style={{ textAlign: 'center', marginTop: '12px', fontSize: '13px', color: '#cbd5e1' }}>
-            Tipp: Klicke auf Würfel, um sie zu <strong>sperren</strong> (gelber Rand).
-          </div>
         </div>
 
-        {/* Würfel-Button */}
-        <div style={{ textAlign: 'center', marginTop: '24px' }}>
-          <button
-            onClick={rollDice}
-            disabled={rollsLeft <= 0 || currentTurn !== 'player'}
-            style={{
-              backgroundColor: rollsLeft > 0 && currentTurn === 'player' ? '#f59e0b' : '#64748b',
-              color: '#000000',
-              border: 'none',
-              padding: '14px 40px',
-              borderRadius: '30px',
-              fontSize: '18px',
-              fontWeight: 800,
-              cursor: rollsLeft > 0 && currentTurn === 'player' ? 'pointer' : 'not-allowed',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
-            }}
-          >
-            🎲 {rollsLeft === 3 ? 'WÜRFELN!' : `NOCHMAL WÜRFELN (${rollsLeft})`}
-          </button>
-        </div>
+        <button
+          onClick={rollDice}
+          disabled={rollsLeft <= 0 || currentTurn !== 'player'}
+          style={{
+            backgroundColor: rollsLeft > 0 ? '#f59e0b' : '#64748b',
+            color: '#000000',
+            border: 'none',
+            padding: '12px',
+            borderRadius: '24px',
+            fontSize: '16px',
+            fontWeight: 800,
+            cursor: rollsLeft > 0 ? 'pointer' : 'default',
+            marginTop: '16px'
+          }}
+        >
+          🎲 {rollsLeft === 3 ? 'WÜRFELN!' : `NOCHMAL (${rollsLeft})`}
+        </button>
       </div>
 
-      {/* Mathe-Bonus-Modal */}
-      {mathBonusModal && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: 'rgba(0,0,0,0.7)',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          zIndex: 999
-        }}>
-          <div style={{
-            backgroundColor: '#ffffff',
-            color: '#0f172a',
-            padding: '24px',
-            borderRadius: '12px',
-            maxWidth: '460px',
-            width: '90%'
-          }}>
-            <h3 style={{ fontSize: '18px', fontWeight: 800, marginBottom: '8px', color: '#2563eb' }}>
-              🎯 Mathe-Bonus-Runde! (+5 Extra-Punkte)
+      {/* Pflicht-Matheaufgabe */}
+      {mathModal && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.7)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 999 }}>
+          <div style={{ backgroundColor: '#ffffff', color: '#0f172a', padding: '20px', borderRadius: '12px', maxWidth: '420px', width: '90%' }}>
+            <h3 style={{ fontSize: '16px', fontWeight: 800, marginBottom: '6px', color: '#2563eb' }}>
+              🧠 Mathe-Pflichtaufgabe vor Eintrag!
             </h3>
-            <p style={{ fontSize: '14px', marginBottom: '16px' }}>{mathBonusModal.question}</p>
-
+            <p style={{ fontSize: '14px', marginBottom: '14px' }}>{mathModal.question}</p>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-              {mathBonusModal.options.map((opt, idx) => (
+              {mathModal.options.map((opt, idx) => (
                 <button
                   key={idx}
-                  onClick={() => finishTurnWithBonus(opt)}
-                  style={{
-                    padding: '12px',
-                    borderRadius: '8px',
-                    border: '1px solid #cbd5e1',
-                    backgroundColor: '#f1f5f9',
-                    fontSize: '15px',
-                    fontWeight: 700,
-                    cursor: 'pointer'
-                  }}
+                  onClick={() => handleMathAnswer(opt)}
+                  style={{ padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', backgroundColor: '#f1f5f9', fontWeight: 700 }}
                 >
                   {opt}
                 </button>

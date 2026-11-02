@@ -4,21 +4,21 @@ export const mathChapters = [
     title: '1. Satz des Pythagoras – Die Grundlagen von Null auf',
     description: 'Was ist Pythagoras, wann darf man ihn anwenden und wie heißen die Seiten?',
     summary: `
-Der Satz des Pythagoras gilt **NUR in rechtwinkligen Dreiecken** (ein Winkel ist genau 90°).
+Der Satz des Pythagoras gilt NUR in rechtwinkligen Dreiecken (ein Winkel ist genau 90°).
 
-### 1. Die Seiten benennen:
-- **Hypotenuse:** Die **längste Seite**. Sie liegt immer direkt **gegenüber dem 90°-Winkel**.
-- **Katheten:** Die beiden kürzeren Seiten, die den 90°-Winkel einschließen (berühren).
+1. Die Seiten benennen:
+• Hypotenuse: Die längste Seite. Sie liegt immer direkt gegenüber dem 90°-Winkel.
+• Katheten: Die beiden kürzeren Seiten, die den 90°-Winkel einschließen (berühren).
 
-### 2. Die Grundformel:
-> **Kathete² + Kathete² = Hypotenuse²**
-> Wenn die Katheten $a$ und $b$ heißen und die Hypotenuse $c$:
-> $$a^2 + b^2 = c^2$$
+2. Die Grundformel:
+Kathete² + Kathete² = Hypotenuse²
+Wenn die Katheten a und b heißen und die Hypotenuse c:
+a² + b² = c²
 
-### 3. Wann ist ein Dreieck rechtwinklig, spitzwinklig oder stumpfwinklig?
-- Wenn $a^2 + b^2 = c^2$ $\rightarrow$ **rechtwinklig** (90°)
-- Wenn $a^2 + b^2 > c^2$ $\rightarrow$ **spitzwinklig** (alle Winkel < 90°)
-- Wenn $a^2 + b^2 < c^2$ $\rightarrow$ **stumpfwinklig** (ein Winkel > 90°)
+3. Wann ist ein Dreieck rechtwinklig, spitzwinklig oder stumpfwinklig?
+• Wenn a² + b² = c² ➔ rechtwinklig (genau 90°)
+• Wenn a² + b² > c² ➔ spitzwinklig (alle Winkel < 90°)
+• Wenn a² + b² < c² ➔ stumpfwinklig (ein Winkel > 90°)
     `,
     exercises: [
       {
@@ -51,7 +51,7 @@ Der Satz des Pythagoras gilt **NUR in rechtwinkligen Dreiecken** (ein Winkel ist
           'Stumpfwinklig, da a² + b² (41) kleiner ist als c² (49)'
         ],
         correctIndex: 2,
-        explanation: 'Weil a² + b² (41) kleiner ist als c² (49), hat die Hypotenuse Überlänge und drückt den Winkel über 90° auf $\\rightarrow$ stumpfwinklig!'
+        explanation: 'Weil a² + b² (41) kleiner ist als c² (49), hat die Hypotenuse Überlänge und drückt den Winkel über 90° auf ➔ stumpfwinklig!'
       }
     ]
   },
@@ -60,19 +60,20 @@ Der Satz des Pythagoras gilt **NUR in rechtwinkligen Dreiecken** (ein Winkel ist
     title: '2. Seiten ausrechnen (Gleichungen umformen)',
     description: 'Wie rechnet man die fehlende Seite Schritt für Schritt aus?',
     summary: `
-Es gibt nur **2 Fälle**, die du kennen musst:
+Es gibt nur 2 Fälle, die du kennen musst:
 
-### Fall 1: Die Hypotenuse (längste Seite c) wird gesucht:
-1. Formel aufstellen: $a^2 + b^2 = c^2$
-2. Zahlen einsetzen: z. B. $6^2 + 8^2 = c^2$ $\rightarrow$ $36 + 64 = c^2$ $\rightarrow$ $100 = c^2$
-3. **Wurzel ziehen:** $c = \\sqrt{100} = 10$
+Fall 1: Die Hypotenuse (längste Seite c) wird gesucht:
+1. Formel aufstellen: a² + b² = c²
+2. Zahlen einsetzen: z. B. 6² + 8² = c² ➔ 36 + 64 = c² ➔ 100 = c²
+3. Wurzel ziehen: c = √100 = 10 cm
 
-### Fall 2: Eine Kathete (kurze Seite a oder b) wird gesucht:
-1. Formel: $a^2 + b^2 = c^2$
+Fall 2: Eine Kathete (kurze Seite a oder b) wird gesucht:
+1. Formel: a² + b² = c²
 2. Umstellen: Die andere Kathete rüberziehen mit Minus:
-   $$a^2 = c^2 - b^2$$
-   $$a = \\sqrt{c^2 - b^2}$$
-3. **Merke:** Wenn die Hypotenuse gesucht ist $\\rightarrow$ **Plus** unter der Wurzel. Wenn eine Kathete gesucht ist $\\rightarrow$ **Minus** unter der Wurzel (immer Hypotenuse² minus gegebene Kathete²)!
+   a² = c² - b²
+   a = √(c² - b²)
+3. Merke: Wenn die Hypotenuse gesucht ist ➔ PLUS unter der Wurzel.
+   Wenn eine Kathete gesucht ist ➔ MINUS unter der Wurzel (immer Hypotenuse² minus gegebene Kathete²)!
     `,
     exercises: [
       {
@@ -100,24 +101,24 @@ Es gibt nur **2 Fälle**, die du kennen musst:
     summary: `
 Das war der Schwerpunkt in eurem OneNote-Heft:
 
-### Typ 1: Leiter an der Wand (Seite 69, Nr. 1)
-- Die Leiter selbst ist die Schräge $\\rightarrow$ **Hypotenuse $c = 5{,}20$ m**
-- Abstand vom Boden zur Wand $\\rightarrow$ **Kathete $a = 1{,}80$ m**
-- Gesucht ist die Wandhöhe $\\rightarrow$ **Kathete $b$**
-- **Rechnung:**
-  $$b = \\sqrt{5{,}20^2 - 1{,}80^2} = \\sqrt{27{,}04 - 3{,}24} = \\sqrt{23{,}8} \\approx 4{,}88\\text{ m}$$
+Typ 1: Leiter an der Wand (Seite 69, Nr. 1)
+• Die Leiter selbst ist die Schräge ➔ Hypotenuse c = 5,20 m
+• Abstand vom Boden zur Wand ➔ Kathete a = 1,80 m
+• Gesucht ist die Wandhöhe ➔ Kathete b
+• Rechnung:
+  b = √(5,20² - 1,80²) = √(27,04 - 3,24) = √23,8 ≈ 4,88 m
 
-### Typ 2: Schrank kippen / Deckenhöhe (Seite 70, Nr. 11)
-- Schrank: Höhe $h = 2{,}00$ m, Breite $b = 1{,}50$ m, Tiefe $t = 0{,}80$ m. Deckenhöhe $= 2{,}20$ m.
-- **a) Nach vorne kippen:**
-  Diagonale $d = \\sqrt{2{,}00^2 + 1{,}50^2} = \\sqrt{4 + 2{,}25} = \\sqrt{6{,}25} = 2{,}50\\text{ m}$.
-  Da $2{,}50\\text{ m} > 2{,}20\\text{ m}$, stößt der Schrank an die Decke! Geht **nicht**.
-- **b) Zur Seite kippen:**
-  Diagonale $d = \\sqrt{2{,}00^2 + 0{,}80^2} = \\sqrt{4 + 0{,}64} = \\sqrt{4{,}64} \\approx 2{,}15\\text{ m}$.
-  Da $2{,}15\\text{ m} < 2{,}20\\text{ m}$, passt der Schrank unter der Decke durch! Geht!
+Typ 2: Schrank kippen / Deckenhöhe (Seite 70, Nr. 11)
+• Schrank: Höhe h = 2,00 m, Breite b = 1,50 m, Tiefe t = 0,80 m. Deckenhöhe = 2,20 m.
+• a) Nach vorne kippen:
+  Diagonale d = √(2,00² + 1,50²) = √(4 + 2,25) = √6,25 = 2,50 m.
+  Da 2,50 m > 2,20 m, stößt der Schrank an die Decke! Geht nicht.
+• b) Zur Seite kippen:
+  Diagonale d = √(2,00² + 0,80²) = √(4 + 0,64) = √4,64 ≈ 2,15 m.
+  Da 2,15 m < 2,20 m, passt der Schrank unter der Decke durch! Geht!
 
-### Typ 3: Fußballfeld Diagonale (Seite 76, Nr. 1)
-- Länge $105$ m, Breite $68$ m. Diagonale $d = \\sqrt{105^2 + 68^2} = \\sqrt{11025 + 4624} = \\sqrt{15649} \\approx 125{,}10\\text{ m}$.
+Typ 3: Fußballfeld Diagonale (Seite 76, Nr. 1)
+• Länge 105 m, Breite 68 m. Diagonale d = √(105² + 68²) = √(11025 + 4624) = √15649 ≈ 125,10 m.
     `,
     exercises: [
       {
@@ -163,24 +164,24 @@ Das war der Schwerpunkt in eurem OneNote-Heft:
     title: '4. Wurzeln – Rechnen & Vereinfachen (Wie Variablen!)',
     description: 'Addieren, Subtrahieren, Multiplizieren & Teilweises Wurzelziehen',
     summary: `
-Wurzeln sind nichts anderes als die Umkehrung vom Quadrieren: $\\sqrt{25} = 5$, weil $5^2 = 25$.
+Wurzeln sind die Umkehrung vom Quadrieren: √25 = 5, weil 5² = 25.
 
-### Regel 1: Plus und Minus $\\rightarrow$ Wurzeln wie Variablen ($x$) rechnen!
-- Du darfst **NUR** Wurzeln mit dem **gleichen Inhalt** zusammenfassen!
-- $4\\sqrt{2} + 7\\sqrt{2} = (4 + 7)\\sqrt{2} = 11\\sqrt{2}$ (genau wie $4x + 7x = 11x$)
-- $19\\sqrt{5} - 2\\sqrt{5} = 17\\sqrt{5}$
-- **ACHTUNG:** $\\sqrt{9} + \\sqrt{16} \\neq \\sqrt{25}$! Denn $3 + 4 = 7$, aber $\\sqrt{25} = 5$. Man darf bei Plus/Minus NIE die Zahlen unter eine gemeinsame Wurzel ziehen!
+Regel 1: Plus und Minus ➔ Wurzeln wie Variablen (x) rechnen!
+• Du darfst NUR Wurzeln mit dem gleichen Inhalt zusammenfassen!
+• 4√2 + 7√2 = (4 + 7)√2 = 11√2 (genau wie 4x + 7x = 11x)
+• 19√5 - 2√5 = 17√5
+• ACHTUNG: √9 + √16 ist NICHT √25! Denn 3 + 4 = 7, aber √25 = 5. Man darf bei Plus/Minus NIE die Zahlen unter eine gemeinsame Wurzel ziehen!
 
-### Regel 2: Mal und Geteilt $\\rightarrow$ Zusammenziehen erlaubt!
-- $\\sqrt{a} \\cdot \\sqrt{b} = \\sqrt{a \\cdot b}$ (z. B. $\\sqrt{2} \\cdot \\sqrt{8} = \\sqrt{16} = 4$)
-- $\\frac{\\sqrt{a}}{\\sqrt{b}} = \\sqrt{\\frac{a}{b}}$ (z. B. $\\frac{\\sqrt{50}}{\\sqrt{2}} = \\sqrt{25} = 5$)
+Regel 2: Mal und Geteilt ➔ Zusammenziehen erlaubt!
+• √a · √b = √(a · b) (z. B. √2 · √8 = √16 = 4)
+• √a / √b = √(a / b) (z. B. √50 / √2 = √25 = 5)
 
-### Regel 3: Teilweises Wurzelziehen (Zerlegen in Quadratzahlen):
-Wenn eine Wurzel nicht schön aufgeht, zerlege die Zahl in eine Quadratzahl ($4, 9, 16, 25, 36, 49, 64, 81, 100$):
-- $\\sqrt{20} = \\sqrt{4 \\cdot 5} = \\sqrt{4} \\cdot \\sqrt{5} = 2\\sqrt{5}$
-- $\\sqrt{50} = \\sqrt{25 \\cdot 2} = 5\\sqrt{2}$
-- $\\sqrt{72} = \\sqrt{36 \\cdot 2} = 6\\sqrt{2}$
-- **Aufgabe aus eurem Heft:** $\\sqrt{5} + \\sqrt{20} = \\sqrt{5} + 2\\sqrt{5} = 3\\sqrt{5}$!
+Regel 3: Teilweises Wurzelziehen (Zerlegen in Quadratzahlen):
+Wenn eine Wurzel nicht glatt aufgeht, zerlege die Zahl in eine Quadratzahl (4, 9, 16, 25, 36, 49, 64, 81, 100):
+• √20 = √(4 · 5) = √4 · √5 = 2√5
+• √50 = √(25 · 2) = 5√2
+• √72 = √(36 · 2) = 6√2
+• Aufgabe aus eurem Heft: √5 + √20 = √5 + 2√5 = 3√5!
     `,
     exercises: [
       {
@@ -226,24 +227,24 @@ Wenn eine Wurzel nicht schön aufgeht, zerlege die Zahl in eine Quadratzahl ($4,
     title: '5. Wurzeln – Klammern, Binome & Nenner rational machen',
     description: 'Spezialfälle von Seite 33 und 53 aus eurem Merkheft',
     summary: `
-### 1. Ausmultiplizieren:
-$\\sqrt{3} \\cdot (\\sqrt{48} + \\sqrt{5})$
-- $\\sqrt{3} \\cdot \\sqrt{48} = \\sqrt{144} = 12$
-- $\\sqrt{3} \\cdot \\sqrt{5} = \\sqrt{15}$
-- **Ergebnis:** $12 + \\sqrt{15}$
+1. Ausmultiplizieren:
+√3 · (√48 + √5)
+• √3 · √48 = √144 = 12
+• √3 · √5 = √15
+• Ergebnis: 12 + √15
 
-### 2. Binomische Formeln mit Wurzeln:
-$(a + b)^2 = a^2 + 2ab + b^2$
-- **Beispiel aus eurem Heft:** $(10 - 5\\sqrt{2})^2$
-  1. Erstes Glied quadrieren: $10^2 = 100$
-  2. Doppelter Mittelteil: $- 2 \\cdot 10 \\cdot 5\\sqrt{2} = - 100\\sqrt{2}$
-  3. Letztes Glied quadrieren: $(5\\sqrt{2})^2 = 5^2 \\cdot (\\sqrt{2})^2 = 25 \\cdot 2 = 50$
-  4. Zusammenfassen: $100 + 50 - 100\\sqrt{2} = 150 - 100\\sqrt{2}$
+2. Binomische Formeln mit Wurzeln:
+(a + b)² = a² + 2ab + b²
+• Beispiel aus eurem Heft: (10 - 5√2)²
+  1. Erstes Glied quadrieren: 10² = 100
+  2. Doppelter Mittelteil: - 2 · 10 · 5√2 = - 100√2
+  3. Letztes Glied quadrieren: (5√2)² = 5² · (√2)² = 25 · 2 = 50
+  4. Zusammenfassen: 100 + 50 - 100√2 = 150 - 100√2
 
-### 3. Nenner rational machen (Keine Wurzel im Nenner!):
+3. Nenner rational machen (Keine Wurzel im Nenner!):
 Wenn unten im Bruch eine Wurzel steht, erweitere oben und unten mit genau dieser Wurzel:
-$$\\frac{1}{\\sqrt{2}} = \\frac{1 \\cdot \\sqrt{2}}{\\sqrt{2} \\cdot \\sqrt{2}} = \\frac{\\sqrt{2}}{2}$$
-$$\\frac{21}{\\sqrt{7}} = \\frac{21\\sqrt{7}}{7} = 3\\sqrt{7}$$
+1 / √2 = (1 · √2) / (√2 · √2) = √2 / 2
+21 / √7 = (21 · √7) / 7 = 3√7
     `,
     exercises: [
       {
@@ -272,18 +273,18 @@ export const englishChapters = [
     title: '1. English Tenses (Die wichtigsten Zeitformen für Klasse 9)',
     description: 'Simple Past, Present Perfect, Past Progressive – wann nutzt man was?',
     summary: `
-### 1. Simple Past vs. Present Perfect
-- **Simple Past:** Handlung in der Vergangenheit ist **abgeschlossen**, bestimmter Zeitpunkt bekannt!
-  - Signalwörter: *yesterday, in 2020, two days ago, last week, when I was young*.
-  - Bildung: Verb + -ed (oder unregelmäßige 2. Form, z. B. *went, saw, wrote*).
-- **Present Perfect:** Handlung hat in Vergangenheit begonnen und hat **Einfluss auf die Gegenwart** oder passiert gerade erst.
-  - Signalwörter: *already, just, never, ever, yet, so far, since, for*.
-  - Bildung: *have / has* + 3. Form (*past participle*, z. B. *have seen, has gone*).
+1. Simple Past vs. Present Perfect
+• Simple Past: Handlung in der Vergangenheit ist abgeschlossen, bestimmter Zeitpunkt bekannt!
+  - Signalwörter: yesterday, in 2020, two days ago, last week, when I was young.
+  - Bildung: Verb + -ed (oder unregelmäßige 2. Form, z. B. went, saw, wrote).
+• Present Perfect: Handlung hat in Vergangenheit begonnen und hat Einfluss auf die Gegenwart oder passiert gerade erst.
+  - Signalwörter: already, just, never, ever, yet, so far, since, for.
+  - Bildung: have / has + 3. Form (past participle, z. B. have seen, has gone).
 
-### 2. Past Progressive
-- Handlung war in der Vergangenheit **gerade im Verlauf**, als etwas anderes passierte.
-  - Bildung: *was / were + Verb-ing*
-  - Beispiel: *I was sleeping when the phone rang.*
+2. Past Progressive
+• Handlung war in der Vergangenheit gerade im Verlauf, als etwas anderes passierte.
+  - Bildung: was / were + Verb-ing
+  - Beispiel: I was sleeping when the phone rang.
     `,
     exercises: [
       {
@@ -292,7 +293,7 @@ export const englishChapters = [
         question: 'Welches Verb gehört in die Lücke: "Yesterday, I ... a new phone."?',
         options: ['bought', 'have bought', 'was buying', 'buy'],
         correctIndex: 0,
-        explanation: '"Yesterday" verlangt zwingend Simple Past $\\rightarrow$ bought.'
+        explanation: '"Yesterday" verlangt zwingend Simple Past ➔ bought.'
       },
       {
         id: 'e2',
@@ -300,7 +301,7 @@ export const englishChapters = [
         question: '"I am not hungry because I ... just ... lunch."',
         options: ['have / eaten', 'had / ate', 'am / eating', 'was / eating'],
         correctIndex: 0,
-        explanation: 'Signalwort "just" und Verbindung zur Gegenwart (nicht hungrig) verlangt Present Perfect $\\rightarrow$ have just eaten.'
+        explanation: 'Signalwort "just" und Verbindung zur Gegenwart (nicht hungrig) verlangt Present Perfect ➔ have just eaten.'
       }
     ]
   },
@@ -309,17 +310,17 @@ export const englishChapters = [
     title: '2. Conditional Clauses (If-Sätze Typ 1, 2 und 3)',
     description: 'Bedingungssätze fehlerfrei bilden',
     summary: `
-### Typ 1: Sehr wahrscheinlich / Real
-- **if-clause:** Simple Present | **main clause:** will-future
-- *If it rains, we will stay at home.*
+Typ 1: Sehr wahrscheinlich / Real
+• if-clause: Simple Present | main clause: will-future
+• If it rains, we will stay at home.
 
-### Typ 2: Unwahrscheinlich / Theoretisch (Gegenwart)
-- **if-clause:** Simple Past | **main clause:** would + Infinitiv
-- *If I had enough money, I would buy a car.*
+Typ 2: Unwahrscheinlich / Theoretisch (Gegenwart)
+• if-clause: Simple Past | main clause: would + Infinitiv
+• If I had enough money, I would buy a car.
 
-### Typ 3: Zu spät / Unmöglich (Vergangenheit)
-- **if-clause:** Past Perfect (*had + 3. Form*) | **main clause:** would have + 3. Form
-- *If I had studied harder, I would have passed the exam.*
+Typ 3: Zu spät / Unmöglich (Vergangenheit)
+• if-clause: Past Perfect (had + 3. Form) | main clause: would have + 3. Form
+• If I had studied harder, I would have passed the exam.
     `,
     exercises: [
       {
@@ -328,7 +329,7 @@ export const englishChapters = [
         question: 'Vervollständige: "If I ... the answer, I would tell you."',
         options: ['knew', 'know', 'had known', 'would know'],
         correctIndex: 0,
-        explanation: 'Hauptsatz hat "would tell" (Typ 2), also braucht der If-Satz Simple Past $\\rightarrow$ knew.'
+        explanation: 'Hauptsatz hat "would tell" (Typ 2), also braucht der If-Satz Simple Past ➔ knew.'
       }
     ]
   }

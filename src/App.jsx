@@ -5,10 +5,11 @@ import { generateDynamicStation } from './data/stationGenerator';
 import { getRank } from './data/gameEngine';
 import BossFight from './components/BossFight';
 import GameHub from './components/GameHub';
+import StudyCheatSheet from './components/StudyCheatSheet';
 import './index.css';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState('arcade'); // 'arcade' | 'boss' | 'stations' | 'exam' | 'calc' | 'english'
+  const [activeTab, setActiveTab] = useState('arcade'); // 'arcade' | 'boss' | 'stations' | 'exam' | 'cheatsheet' | 'calc' | 'english'
   const [selectedStationIndex, setSelectedStationIndex] = useState(0);
 
   // XP und Level-System
@@ -69,6 +70,10 @@ export default function App() {
   const handleSelectStationOption = (exId, optIdx) => {
     setStationAnswers(prev => ({ ...prev, [exId]: optIdx }));
     gainXp(15);
+  };
+
+  const printExam = () => {
+    window.print();
   };
 
   const calculatePythagoras = () => {
@@ -136,7 +141,7 @@ export default function App() {
 
   return (
     <div>
-      {/* Header für Mobile & iOS Safe-Area optimiert */}
+      {/* Header für Mobile & iOS Safe-Area optimiert (Großzügiger Abstand unter Dynamic Island / SideStore) */}
       <header className="app-header">
         <div className="header-top">
           <div>
@@ -149,13 +154,19 @@ export default function App() {
           </div>
         </div>
 
-        {/* Swipe-fähige horizontale Navigation ohne Überlappung */}
+        {/* Swipe-fähige horizontale Navigation */}
         <nav className="tab-nav">
           <button
             className={`tab-btn ${activeTab === 'arcade' ? 'active' : ''}`}
             onClick={() => setActiveTab('arcade')}
           >
             🎮 4 Minispiele
+          </button>
+          <button
+            className={`tab-btn ${activeTab === 'cheatsheet' ? 'active' : ''}`}
+            onClick={() => setActiveTab('cheatsheet')}
+          >
+            📄 Lernzettel & Drucken
           </button>
           <button
             className={`tab-btn ${activeTab === 'boss' ? 'active' : ''}`}
@@ -196,6 +207,11 @@ export default function App() {
         {/* ===================== TAB: ARCADE-MINISPIELE ===================== */}
         {activeTab === 'arcade' && (
           <GameHub onGainXp={gainXp} />
+        )}
+
+        {/* ===================== TAB: LERNZETTEL & DRUCKEN ===================== */}
+        {activeTab === 'cheatsheet' && (
+          <StudyCheatSheet />
         )}
 
         {/* ===================== TAB: BOSS FIGHT ===================== */}
@@ -301,13 +317,33 @@ export default function App() {
         {/* ===================== TAB: PROBEKLASSENARBEIT ===================== */}
         {activeTab === 'exam' && (
           <div className="card">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-              <h1 className="card-title">📝 Probeklassenarbeit</h1>
-              <button className="calc-btn" onClick={startNewExam} style={{ width: 'auto', fontSize: '12px', padding: '6px 12px' }}>
-                🎲 Neu
-              </button>
+            {/* Kopfbereich mit Druck-Option */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', flexWrap: 'wrap', gap: '8px' }}>
+              <div>
+                <h1 className="card-title">📝 Probeklassenarbeit</h1>
+                <p className="card-desc" style={{ marginBottom: 0 }}>8 Aufgaben exakt wie am Mittwoch in der Schule.</p>
+              </div>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button
+                  onClick={printExam}
+                  style={{
+                    backgroundColor: '#0f172a',
+                    color: '#ffffff',
+                    border: 'none',
+                    padding: '8px 14px',
+                    borderRadius: '20px',
+                    fontWeight: 700,
+                    fontSize: '12px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  🖨️ Drucken / PDF
+                </button>
+                <button className="calc-btn" onClick={startNewExam} style={{ width: 'auto', fontSize: '12px', padding: '6px 12px' }}>
+                  🎲 Neue Zahlen
+                </button>
+              </div>
             </div>
-            <p className="card-desc">8 Aufgaben wie am Mittwoch in der Schule.</p>
 
             {examSubmitted && (
               <div style={{
@@ -315,7 +351,7 @@ export default function App() {
                 backgroundColor: examScore >= 6 ? 'var(--success-bg)' : 'var(--error-bg)',
                 border: `2px solid ${examScore >= 6 ? 'var(--success)' : 'var(--error)'}`,
                 borderRadius: '8px',
-                marginBottom: '16px'
+                margin: '14px 0'
               }}>
                 <div style={{ fontSize: '16px', fontWeight: 800, color: examScore >= 6 ? 'var(--success)' : 'var(--error)' }}>
                   Ergebnis: {examScore} von {examQuestions.length} Punkten!

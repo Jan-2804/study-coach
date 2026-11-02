@@ -1,0 +1,20 @@
+{
+  "name": "Jan's Study Apps",
+  "identifier": "com.jan2804.studyapps",
+  "apps": [
+    {
+      "name": "Study Coach 9a",
+      "bundleIdentifier": "com.jan2804.studycoach",
+      "developerName": "Jan",
+      "version": "1.0.0",
+      "versionDate": "2026-11-02",
+      "versionDescription": "Mathe- und Englisch-Lernapp mit Boss-Fight, Stationen, UNO, Kniffel, Among Us und Bloons TD.",
+      "downloadURL": "https://github.com/Jan-2804/study-coach/releases/download/v1.0.0/study-coach.ipa",
+      "localizedDescription": "Interaktive Lern- und Spiele-App für die Klassenarbeit (Mathe 9a & Englisch) mit druckbarem Lernzettel und Probeklassenarbeiten.",
+      "iconURL": "https://raw.githubusercontent.com/Jan-2804/study-coach/main/apps.png",
+      "tintColor": "2563eb",
+      "size": 822173
+    }
+  ],
+  "news": []
+}
